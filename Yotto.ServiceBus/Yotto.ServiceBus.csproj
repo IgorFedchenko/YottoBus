@@ -68,13 +68,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Abstract\IEndpointsParser.cs" />
+    <Compile Include="Abstract\IBusLogger.cs" />
     <Compile Include="Abstract\IEventHandler.cs" />
     <Compile Include="Abstract\IServiceBus.cs" />
-    <Compile Include="Concrete\EndpointRangeParser.cs" />
+    <Compile Include="Concrete\ServiceBus.cs" />
+    <Compile Include="Concrete\ServiceBusActor.cs" />
+    <Compile Include="Configuration\PeerConfiguration.cs" />
+    <Compile Include="Helpers\EndpointRangeParser.cs" />
+    <Compile Include="Model\ActorSystemConfiguration.cs" />
+    <Compile Include="Model\LogLevel.cs" />
     <Compile Include="Model\PeerConected.cs" />
     <Compile Include="Model\PeerDisconnected.cs" />
     <Compile Include="Model\PeerIdentity.cs" />
+    <Compile Include="Model\TagsList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

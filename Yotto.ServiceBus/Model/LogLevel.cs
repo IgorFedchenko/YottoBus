@@ -4,10 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Yotto.ServiceBus.Abstract
+namespace Yotto.ServiceBus.Model
 {
-    interface IEndpointsParser
+    public enum LogLevel
     {
-        string[] Parse(string endpointsString);
+        Trace,
+        Debug,
+        Info,
+        Warning,
+        Error
     }
 }
