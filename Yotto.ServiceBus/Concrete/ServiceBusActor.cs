@@ -89,6 +89,8 @@ namespace Yotto.ServiceBus.Concrete
             Receive<Publish>(msg => PublishMessage(msg));
             Receive<Send>(msg => SendMessageToPeer(msg.Message, msg.Target));
 
+            Receive<GetPeers>(msg => Sender.Tell(_peers.Keys.ToArray()));
+
             foreach (var busEndpoint in busEndpoints)
             {
                 StartTrackEndpoint(busEndpoint);
@@ -157,12 +159,15 @@ namespace Yotto.ServiceBus.Concrete
 
         private void PublishMessage(Publish msg)
         {
-            // TODO
+            foreach (var peer in _peers.Keys.Where(p => p.Tags.AllTags.Intersect(msg.Tags.AllTags).Any()))
+            {
+                _peers[peer].Tell(msg.Event);
+            }
         }
 
         private void SendMessageToPeer(object message, PeerIdentity peer)
         {
-            // TODO
+            _peers[peer].Tell(message);
         }
 
         private void InvokeSubscriptions(object @event, PeerIdentity sender)
