@@ -30,7 +30,7 @@ namespace Yotto.ServiceBus.Configuration
                     }
                 }
             }
-            "));
+            ");
             return config;
         }
     }

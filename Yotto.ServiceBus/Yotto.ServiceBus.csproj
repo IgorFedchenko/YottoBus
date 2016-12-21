@@ -71,11 +71,12 @@
     <Compile Include="Abstract\IBusLogger.cs" />
     <Compile Include="Abstract\IEventHandler.cs" />
     <Compile Include="Abstract\IServiceBus.cs" />
+    <Compile Include="Concrete\BusConnectionFactory.cs" />
     <Compile Include="Concrete\ServiceBus.cs" />
     <Compile Include="Concrete\ServiceBusActor.cs" />
     <Compile Include="Configuration\PeerConfiguration.cs" />
     <Compile Include="Helpers\EndpointRangeParser.cs" />
-    <Compile Include="Model\ActorSystemConfiguration.cs" />
+    <Compile Include="Configuration\ActorSystemConfiguration.cs" />
     <Compile Include="Model\LogLevel.cs" />
     <Compile Include="Model\PeerConected.cs" />
     <Compile Include="Model\PeerDisconnected.cs" />
