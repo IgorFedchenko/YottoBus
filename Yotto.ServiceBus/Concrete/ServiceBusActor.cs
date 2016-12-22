@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Akka.Actor;
+using Newtonsoft.Json;
 using Yotto.ServiceBus.Abstract;
 using Yotto.ServiceBus.Model;
 
@@ -66,9 +67,18 @@ namespace Yotto.ServiceBus.Concrete
 
         public class GetIdentity { }
 
+        public class CheckEndpoint
+        {
+            public CheckEndpoint(IPEndPoint endpoint)
+            {
+                Endpoint = endpoint;
+            }
+
+            public IPEndPoint Endpoint { get; }
+        }
+
         #endregion
 
-        private List<IPEndPoint> _busEndpoints;
         private readonly PeerIdentity _selfIdentity;
         private readonly TimeSpan _resolveTimeout;
         private readonly Dictionary<Type, HashSet<IEventHandler>> _handlers = new Dictionary<Type, HashSet<IEventHandler>>();
@@ -76,12 +86,12 @@ namespace Yotto.ServiceBus.Concrete
 
         public ServiceBusActor(List<IPEndPoint> busEndpoints, PeerIdentity selfIdentity, TimeSpan resolveTimeout)
         {
-            _busEndpoints = busEndpoints;
             _selfIdentity = selfIdentity;
             _resolveTimeout = resolveTimeout;
 
             Receive<GetIdentity>(msg => HandleIdentityRequest(msg));
             Receive<PeerIdentity>(msg => HandleConnected(msg, Sender));
+            Receive<CheckEndpoint>(msg => TryResolveEndpoint(msg.Endpoint));
             Receive<Terminated>(msg => HandleDisconnected(msg.ActorRef));
 
             Receive<Subscribe>(msg => AddHandler(msg));
@@ -91,30 +101,28 @@ namespace Yotto.ServiceBus.Concrete
 
             Receive<GetPeers>(msg => Sender.Tell(_peers.Keys.ToArray()));
 
+            ReceiveAny(_ => HandleConnected(null, Self));
+
             foreach (var busEndpoint in busEndpoints)
             {
-                StartTrackEndpoint(busEndpoint);
+                Self.Tell(new CheckEndpoint(busEndpoint));
             }
         }
 
-        private void StartTrackEndpoint(IPEndPoint endPoint)
+        private void TryResolveEndpoint(IPEndPoint endPoint)
         {
-            Context.ActorSelection($"akka.tcp://{Context.System.Name}@{endPoint.Address}:{endPoint.Port}{Self.Path}")
-                .ResolveOne(_resolveTimeout)
+            string address = $"akka.tcp://{Context.System.Name}@{endPoint.Address}:{endPoint.Port}/user/{Self.Path.Name}";
+            var self = Self;
+            Context.System.ActorSelection(address)
+                .ResolveOne(TimeSpan.FromMilliseconds(1000))
                 .ContinueWith(
                     task =>
                     {
                         if (task.IsFaulted)
-                            StartTrackEndpoint(endPoint);
+                            self.Tell(new CheckEndpoint(endPoint), self);
                         else
-                            RequestIdentity(task.Result);
-
-                    }).ConfigureAwait(false);
-        }
-
-        private void RequestIdentity(IActorRef peer)
-        {
-            peer.Tell(new GetIdentity());
+                            task.Result.Tell(new GetIdentity(), self);
+                    });
         }
 
         private void HandleConnected(PeerIdentity identity, IActorRef peer)
@@ -133,7 +141,7 @@ namespace Yotto.ServiceBus.Concrete
 
             _peers.Remove(identity);
 
-            StartTrackEndpoint(GetActorEndpoint(peer));
+            TryResolveEndpoint(GetActorEndpoint(peer));
         }
 
         private void HandleIdentityRequest(GetIdentity msg)

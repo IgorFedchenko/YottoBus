@@ -14,24 +14,31 @@ namespace Yotto.ServiceBus.Configuration
 
         public Akka.Configuration.Config GetConfig()
         {
-            var config = ConfigurationFactory.ParseString(@"
+            var config = @"
             akka {  
                 actor {
                         provider = ""Akka.Remote.RemoteActorRefProvider, Akka.Remote""
+                        debug {
+                          receive = on
+                          autoreceive = on
+                          lifecycle = on
+                          event-stream = on
+                          unhandled = on
+                        }
                     }
                 remote {
+                    log-received-messages = on
                     helios.tcp {
                         transport-class = ""Akka.Remote.Transport.Helios.HeliosTcpTransport, Akka.Remote""
                         applied-adapters = []
                         transport-protocol = tcp
                         port = " + _publicEndPoint.Port + @"
-                        hostname = localhost
-                        public-hostname = " + _publicEndPoint.Address + @"
+                        hostname = ""0.0.0.0""
+                        public-hostname = """ + _publicEndPoint.Address + @"""
                     }
                 }
-            }
-            ");
-            return config;
+            }";
+            return ConfigurationFactory.ParseString(config);
         }
     }
 }

@@ -12,6 +12,11 @@ namespace Yotto.ServiceBus.Concrete
 {
     public class BusConnectionFactory
     {
+        public static IServiceBus CreateClient(IPEndPoint localEndpoint, TagsList tags)
+        {
+            return CreateClient(localEndpoint, tags, new PeerConfiguration());
+        }
+
         public static IServiceBus CreateClient(IPEndPoint localEndpoint, TagsList tags, PeerConfiguration configuration)
         {
             return new ServiceBus(localEndpoint, tags, configuration);

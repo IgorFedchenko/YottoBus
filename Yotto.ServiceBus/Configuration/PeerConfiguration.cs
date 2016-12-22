@@ -8,6 +8,6 @@ namespace Yotto.ServiceBus.Configuration
 {
     public class PeerConfiguration
     {
-        public int PeerResolveTimeout { get; set; } = 5000;
+        public int PeerResolveTimeout { get; set; } = 3000;
     }
 }

@@ -4,6 +4,7 @@ using System.Net;
 using Akka.Actor;
 using Yotto.ServiceBus.Abstract;
 using Yotto.ServiceBus.Configuration;
+using Yotto.ServiceBus.Helpers;
 using Yotto.ServiceBus.Model;
 
 namespace Yotto.ServiceBus.Concrete
@@ -23,10 +24,15 @@ namespace Yotto.ServiceBus.Concrete
             Self = new PeerIdentity(localEndpoint, tags);
 
             var systemConfiguration = new ActorSystemConfiguration(localEndpoint);
-            _system = ActorSystem.Create("Yotto.ServiceBus", systemConfiguration.GetConfig());
+            _system = ActorSystem.Create("YottoServiceBus", systemConfiguration.GetConfig());
         }
 
         public PeerIdentity Self { get; }
+
+        public void Connect(string busEndpointsPattern)
+        {
+            Connect(EndpointsRangeParser.Parse(busEndpointsPattern));
+        }
 
         public void Connect(List<IPEndPoint> busEndpoints)
         {

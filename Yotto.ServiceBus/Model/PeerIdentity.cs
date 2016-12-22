@@ -9,15 +9,28 @@ namespace Yotto.ServiceBus.Model
 {
     public class PeerIdentity
     {
-        internal PeerIdentity(IPEndPoint endpoint, TagsList tags)
+        public PeerIdentity() { }
+
+        public PeerIdentity(IPEndPoint endpoint, TagsList tags)
         {
             Id = Guid.NewGuid();
-            Endpoint = endpoint;
+            Endpoint = endpoint.Address + ":" + endpoint.Port;
             Tags = tags;
         }
 
-        public Guid Id { get; }
-        public IPEndPoint Endpoint { get; }
-        public TagsList Tags { get; }
+        public Guid Id { get; set; }
+        public string Endpoint { get; set; }
+        public TagsList Tags { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            var identity = obj as PeerIdentity;
+            if (identity != null)
+            {
+                return Id == identity.Id;
+            }
+
+            return base.Equals(obj);
+        }
     }
 }
