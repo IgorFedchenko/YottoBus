@@ -10,11 +10,13 @@ namespace Yotto.ServiceBus.Model
     {
         public static TagsList Empty => new TagsList();
 
+        public TagsList() { }
+
         public TagsList(params string[] tags)
         {
             AllTags = tags;
         }
 
-        public string[] AllTags { get; } 
+        public string[] AllTags { get; set; } 
     }
 }

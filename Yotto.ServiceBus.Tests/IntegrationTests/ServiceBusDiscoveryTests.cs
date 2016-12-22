@@ -35,5 +35,25 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
                 });
             }
         }
+
+        [Test]
+        public void ShouldDiscoverWithInnerData()
+        {
+            var endpoint1 = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8080);
+            var endpoint2 = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8081);
+
+            using (var peer1 = BusConnectionFactory.CreateClient(endpoint1, new TagsList("a", "b")))
+            using (var peer2 = BusConnectionFactory.CreateClient(endpoint2, new TagsList("c", "d")))
+            {
+                peer1.Connect("127.0.0.1:8081");
+                peer2.Connect("127.0.0.1:8080");
+
+                AwaitAssert(TimeSpan.FromSeconds(5), () =>
+                {
+                    Assert.AreEqual(peer1.GetPeers().First().Endpoint, peer2.Self.Endpoint);
+                    CollectionAssert.AreEqual(peer1.GetPeers().First().Tags.AllTags, peer2.Self.Tags.AllTags);
+                });
+            }
+        }
     }
 }

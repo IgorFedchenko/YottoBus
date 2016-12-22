@@ -87,6 +87,7 @@ namespace Yotto.ServiceBus.Concrete
         public void Dispose()
         {
             Disconnect();
+            _system.Terminate();
         }
     }
 }
