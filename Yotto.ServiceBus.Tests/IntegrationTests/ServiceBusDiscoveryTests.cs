@@ -55,5 +55,32 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
                 });
             }
         }
+
+        [Test]
+        public void ShouldDiscoverDisconnect()
+        {
+            var endpoint1 = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8080);
+            var endpoint2 = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8081);
+
+            using (var peer1 = BusConnectionFactory.CreateClient(endpoint1, TagsList.Empty))
+            using (var peer2 = BusConnectionFactory.CreateClient(endpoint2, TagsList.Empty))
+            {
+                peer1.Connect("127.0.0.1:8081");
+                peer2.Connect("127.0.0.1:8080");
+
+                AwaitAssert(TimeSpan.FromSeconds(5), () =>
+                {
+                    CollectionAssert.AreEquivalent(new[] { peer2.Self }, peer1.GetPeers());
+                    CollectionAssert.AreEquivalent(new[] { peer1.Self }, peer2.GetPeers());
+                });
+
+                peer2.Disconnect();
+
+                AwaitAssert(TimeSpan.FromSeconds(5), () =>
+                {
+                    CollectionAssert.IsEmpty(peer1.GetPeers());
+                });
+            }
+        }
     }
 }
