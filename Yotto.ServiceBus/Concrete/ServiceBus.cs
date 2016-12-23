@@ -29,14 +29,9 @@ namespace Yotto.ServiceBus.Concrete
 
         public PeerIdentity Self { get; }
 
-        public void Connect(string busEndpointsPattern)
+        public void Connect(EndpointsRange endpointsRange)
         {
-            Connect(EndpointsRangeParser.Parse(busEndpointsPattern));
-        }
-
-        public void Connect(List<IPEndPoint> busEndpoints)
-        {
-            _busActor = _system.ActorOf(Props.Create(() => new ServiceBusActor(busEndpoints, Self, TimeSpan.FromMilliseconds(_configuration.PeerResolveTimeout))), PeerName);
+            _busActor = _system.ActorOf(Props.Create(() => new ServiceBusActor(endpointsRange.All, Self, TimeSpan.FromMilliseconds(_configuration.PeerResolveTimeout))), PeerName);
         }
 
         public PeerIdentity[] GetPeers()

@@ -25,8 +25,8 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
             using (var peer1 = BusConnectionFactory.CreateClient(endpoint1, TagsList.Empty))
             using (var peer2 = BusConnectionFactory.CreateClient(endpoint2, TagsList.Empty))
             {
-                peer1.Connect("127.0.0.1:8081");
-                peer2.Connect("127.0.0.1:8080");
+                peer1.Connect(new EndpointsRange("127.0.0.1:8081"));
+                peer2.Connect(new EndpointsRange("127.0.0.1:8080"));
 
                 AwaitAssert(TimeSpan.FromSeconds(5), () =>
                 {
@@ -45,8 +45,8 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
             using (var peer1 = BusConnectionFactory.CreateClient(endpoint1, new TagsList("a", "b")))
             using (var peer2 = BusConnectionFactory.CreateClient(endpoint2, new TagsList("c", "d")))
             {
-                peer1.Connect("127.0.0.1:8081");
-                peer2.Connect("127.0.0.1:8080");
+                peer1.Connect(new EndpointsRange("127.0.0.1:8081"));
+                peer2.Connect(new EndpointsRange("127.0.0.1:8080"));
 
                 AwaitAssert(TimeSpan.FromSeconds(5), () =>
                 {
@@ -65,8 +65,8 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
             using (var peer1 = BusConnectionFactory.CreateClient(endpoint1, TagsList.Empty))
             using (var peer2 = BusConnectionFactory.CreateClient(endpoint2, TagsList.Empty))
             {
-                peer1.Connect("127.0.0.1:8081");
-                peer2.Connect("127.0.0.1:8080");
+                peer1.Connect(new EndpointsRange("127.0.0.1:8081"));
+                peer2.Connect(new EndpointsRange("127.0.0.1:8080"));
 
                 AwaitAssert(TimeSpan.FromSeconds(5), () =>
                 {

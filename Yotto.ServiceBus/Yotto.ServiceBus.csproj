@@ -77,6 +77,7 @@
     <Compile Include="Configuration\PeerConfiguration.cs" />
     <Compile Include="Helpers\EndpointRangeParser.cs" />
     <Compile Include="Configuration\ActorSystemConfiguration.cs" />
+    <Compile Include="Model\EndpointsRange.cs" />
     <Compile Include="Model\LogLevel.cs" />
     <Compile Include="Model\PeerConected.cs" />
     <Compile Include="Model\PeerDisconnected.cs" />

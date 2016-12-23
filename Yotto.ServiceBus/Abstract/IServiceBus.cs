@@ -7,8 +7,7 @@ namespace Yotto.ServiceBus.Abstract
 {
     public interface IServiceBus : IDisposable
     {
-        void Connect(string busEndpointsPattern);
-        void Connect(List<IPEndPoint> busEndpoints);
+        void Connect(EndpointsRange endpoints);
 
         PeerIdentity Self { get; }
         PeerIdentity[] GetPeers();
