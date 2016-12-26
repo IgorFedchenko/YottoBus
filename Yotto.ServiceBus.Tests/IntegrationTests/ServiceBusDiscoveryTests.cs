@@ -82,5 +82,24 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
                 });
             }
         }
+
+        [Test]
+        public void MemoryConsumptionTest()
+        {
+            var endpoint1 = new IPEndPoint(IPAddress.Parse("10.5.5.3"), 8080);
+            var endpoint2 = new IPEndPoint(IPAddress.Parse("10.5.5.3"), 8081);
+
+            using (var peer1 = BusConnectionFactory.CreateClient(endpoint1, TagsList.Empty))
+            using (var peer2 = BusConnectionFactory.CreateClient(endpoint2, TagsList.Empty))
+            {
+                peer1.Connect(new EndpointsRange("10.5.5.[1-254]:[8000-8020]"));
+                peer2.Connect(new EndpointsRange("10.5.5.[1-254]:[8000-8020]"));
+
+                while (true)
+                {
+                    
+                }
+            }
+        }
     }
 }
