@@ -5,7 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using Yotto.ServiceBus.Helpers;
+using Yotto.ServiceBus.Proxy.Helpers;
 
 namespace Yotto.ServiceBus.Tests
 {

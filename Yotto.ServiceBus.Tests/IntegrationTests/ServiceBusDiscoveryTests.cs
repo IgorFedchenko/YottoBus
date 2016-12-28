@@ -19,19 +19,18 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
         [Test]
         public void ShouldDiscoverEachOther()
         {
-            var endpoint1 = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8080);
-            var endpoint2 = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8081);
+            var bus = YottoBus.Create();
 
-            using (var peer1 = BusConnectionFactory.CreateClient(endpoint1, TagsList.Empty))
-            using (var peer2 = BusConnectionFactory.CreateClient(endpoint2, TagsList.Empty))
+            using (var peer1 = bus.CreatePeer(new PeerConfiguration()))
+            using (var peer2 = bus.CreatePeer(new PeerConfiguration()))
             {
-                peer1.Connect(new EndpointsRange("127.0.0.1:8081"));
-                peer2.Connect(new EndpointsRange("127.0.0.1:8080"));
+                peer1.Connect();
+                peer2.Connect();
 
                 AwaitAssert(TimeSpan.FromSeconds(5), () =>
                 {
-                    CollectionAssert.AreEquivalent(new[] { peer2.Self }, peer1.GetPeers());
-                    CollectionAssert.AreEquivalent(new[] { peer1.Self }, peer2.GetPeers());
+                    CollectionAssert.AreEquivalent(new[] { peer2.Identity }, peer1.GetConnectedPeers());
+                    CollectionAssert.AreEquivalent(new[] { peer1.Identity }, peer2.GetConnectedPeers());
                 });
             }
         }
@@ -42,16 +41,16 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
             var endpoint1 = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8080);
             var endpoint2 = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8081);
 
-            using (var peer1 = BusConnectionFactory.CreateClient(endpoint1, new TagsList("a", "b")))
-            using (var peer2 = BusConnectionFactory.CreateClient(endpoint2, new TagsList("c", "d")))
+            using (var peer1 = YottoBus.CreatePeer(endpoint1, new TagsList("a", "b")))
+            using (var peer2 = YottoBus.CreatePeer(endpoint2, new TagsList("c", "d")))
             {
                 peer1.Connect(new EndpointsRange("127.0.0.1:8081"));
                 peer2.Connect(new EndpointsRange("127.0.0.1:8080"));
 
                 AwaitAssert(TimeSpan.FromSeconds(5), () =>
                 {
-                    Assert.AreEqual(peer1.GetPeers().First().Endpoint, peer2.Self.Endpoint);
-                    CollectionAssert.AreEqual(peer1.GetPeers().First().Tags.AllTags, peer2.Self.Tags.AllTags);
+                    Assert.AreEqual(peer1.GetConnectedPeers().First().Endpoint, peer2.Identity.Endpoint);
+                    CollectionAssert.AreEqual(peer1.GetConnectedPeers().First().Tags.AllTags, peer2.Identity.Tags.AllTags);
                 });
             }
         }
@@ -62,23 +61,23 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
             var endpoint1 = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8080);
             var endpoint2 = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8081);
 
-            using (var peer1 = BusConnectionFactory.CreateClient(endpoint1, TagsList.Empty))
-            using (var peer2 = BusConnectionFactory.CreateClient(endpoint2, TagsList.Empty))
+            using (var peer1 = YottoBus.CreatePeer(endpoint1, TagsList.Empty))
+            using (var peer2 = YottoBus.CreatePeer(endpoint2, TagsList.Empty))
             {
                 peer1.Connect(new EndpointsRange("127.0.0.1:8081"));
                 peer2.Connect(new EndpointsRange("127.0.0.1:8080"));
 
                 AwaitAssert(TimeSpan.FromSeconds(5), () =>
                 {
-                    CollectionAssert.AreEquivalent(new[] { peer2.Self }, peer1.GetPeers());
-                    CollectionAssert.AreEquivalent(new[] { peer1.Self }, peer2.GetPeers());
+                    CollectionAssert.AreEquivalent(new[] { peer2.Identity }, peer1.GetConnectedPeers());
+                    CollectionAssert.AreEquivalent(new[] { peer1.Identity }, peer2.GetConnectedPeers());
                 });
 
                 peer2.Disconnect();
 
                 AwaitAssert(TimeSpan.FromSeconds(5), () =>
                 {
-                    CollectionAssert.IsEmpty(peer1.GetPeers());
+                    CollectionAssert.IsEmpty(peer1.GetConnectedPeers());
                 });
             }
         }
@@ -89,8 +88,8 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
             var endpoint1 = new IPEndPoint(IPAddress.Parse("10.5.5.3"), 8080);
             var endpoint2 = new IPEndPoint(IPAddress.Parse("10.5.5.3"), 8081);
 
-            using (var peer1 = BusConnectionFactory.CreateClient(endpoint1, TagsList.Empty))
-            using (var peer2 = BusConnectionFactory.CreateClient(endpoint2, TagsList.Empty))
+            using (var peer1 = YottoBus.CreatePeer(endpoint1, TagsList.Empty))
+            using (var peer2 = YottoBus.CreatePeer(endpoint2, TagsList.Empty))
             {
                 peer1.Connect(new EndpointsRange("10.5.5.[1-254]:[8000-8020]"));
                 peer2.Connect(new EndpointsRange("10.5.5.[1-254]:[8000-8020]"));

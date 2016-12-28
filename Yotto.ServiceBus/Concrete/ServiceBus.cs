@@ -9,7 +9,7 @@ using Yotto.ServiceBus.Model;
 
 namespace Yotto.ServiceBus.Concrete
 {
-    class ServiceBus : IServiceBus
+    class ServiceBus : IPeer
     {
         const string PeerName = "busPeer";
 
@@ -21,20 +21,20 @@ namespace Yotto.ServiceBus.Concrete
         public ServiceBus(IPEndPoint localEndpoint, TagsList tags, PeerConfiguration configuration)
         {
             _configuration = configuration;
-            Self = new PeerIdentity(localEndpoint, tags);
+            Identity = new PeerIdentity(localEndpoint, tags);
 
             var systemConfiguration = new ActorSystemConfiguration(localEndpoint);
             _system = ActorSystem.Create("YottoServiceBus", systemConfiguration.GetConfig());
         }
 
-        public PeerIdentity Self { get; }
+        public PeerIdentity Identity { get; }
 
         public void Connect(EndpointsRange endpointsRange)
         {
-            _busActor = _system.ActorOf(Props.Create(() => new ServiceBusActor(endpointsRange.All, Self, TimeSpan.FromMilliseconds(_configuration.PeerResolveTimeout))), PeerName);
+            _busActor = _system.ActorOf(Props.Create(() => new ServiceBusActor(endpointsRange.All, Identity, TimeSpan.FromMilliseconds(_configuration.PeerResolveTimeout))), PeerName);
         }
 
-        public PeerIdentity[] GetPeers()
+        public PeerIdentity[] GetConnectedPeers()
         {
            return _busActor.Ask<PeerIdentity[]>(new ServiceBusActor.GetPeers()).Result;
         }

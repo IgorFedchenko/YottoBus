@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Yotto.ServiceBus.Model
 {
@@ -11,16 +12,16 @@ namespace Yotto.ServiceBus.Model
     {
         public PeerIdentity() { }
 
-        public PeerIdentity(IPEndPoint endpoint, TagsList tags)
+        public PeerIdentity(IPEndPoint endpoint, PeerMetadata metadata)
         {
             Id = Guid.NewGuid();
             Endpoint = endpoint.Address + ":" + endpoint.Port;
-            Tags = tags;
+            Metadata = metadata;
         }
 
         public Guid Id { get; set; }
         public string Endpoint { get; set; }
-        public TagsList Tags { get; set; }
+        public PeerMetadata Metadata { get; set; }
 
         public override bool Equals(object obj)
         {
@@ -31,6 +32,11 @@ namespace Yotto.ServiceBus.Model
             }
 
             return base.Equals(obj);
+        }
+
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
         }
     }
 }

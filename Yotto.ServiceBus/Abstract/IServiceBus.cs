@@ -1,28 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
-using Yotto.ServiceBus.Model;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Yotto.ServiceBus.Configuration;
 
 namespace Yotto.ServiceBus.Abstract
 {
-    public interface IServiceBus : IDisposable
+    public interface IServiceBus
     {
-        void Connect(EndpointsRange endpoints);
+        List<IBusLogger> Loggers { get; }
 
-        PeerIdentity Self { get; }
-        PeerIdentity[] GetPeers();
-
-        void Subscribe<TEvent>(IEventHandler<TEvent> handler);
-        void Unsubscribe<TEvent>(IEventHandler<TEvent> handler);
-
-        void Publish(object @event);
-        void Publish(object @event, string tag);
-        void Publish(object @event, TagsList tags);
-
-        void Send(object message, PeerIdentity target);
-
-        void AddLogger(IBusLogger logger);
-
-        void Disconnect();
+        IPeer CreatePeer(PeerConfiguration configuration);
     }
 }

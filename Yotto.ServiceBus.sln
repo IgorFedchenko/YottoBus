@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{C217D270
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yotto.ServiceBus.Tests", "Yotto.ServiceBus.Tests\Yotto.ServiceBus.Tests.csproj", "{C89AC9D6-EFD8-4636-B0B6-66CFD28BFD03}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yotto.ServiceBus.Proxy", "Yotto.ServiceBus.Proxy\Yotto.ServiceBus.Proxy.csproj", "{E73B3FD1-3EEF-4842-9CE1-CBFC70C832AE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,10 @@ Global
 		{C89AC9D6-EFD8-4636-B0B6-66CFD28BFD03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C89AC9D6-EFD8-4636-B0B6-66CFD28BFD03}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C89AC9D6-EFD8-4636-B0B6-66CFD28BFD03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E73B3FD1-3EEF-4842-9CE1-CBFC70C832AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E73B3FD1-3EEF-4842-9CE1-CBFC70C832AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E73B3FD1-3EEF-4842-9CE1-CBFC70C832AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E73B3FD1-3EEF-4842-9CE1-CBFC70C832AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

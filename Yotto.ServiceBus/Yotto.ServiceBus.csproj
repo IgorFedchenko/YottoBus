@@ -70,25 +70,25 @@
   <ItemGroup>
     <Compile Include="Abstract\IBusLogger.cs" />
     <Compile Include="Abstract\IEventHandler.cs" />
+    <Compile Include="Abstract\IPeer.cs" />
     <Compile Include="Abstract\IServiceBus.cs" />
-    <Compile Include="Concrete\BusConnectionFactory.cs" />
+    <Compile Include="Concrete\Peer.cs" />
+    <Compile Include="Concrete\YottoBus.cs" />
     <Compile Include="Concrete\ServiceBus.cs" />
-    <Compile Include="Concrete\ServiceBusActor.cs" />
     <Compile Include="Configuration\PeerConfiguration.cs" />
-    <Compile Include="Helpers\EndpointRangeParser.cs" />
-    <Compile Include="Configuration\ActorSystemConfiguration.cs" />
-    <Compile Include="Model\EndpointsRange.cs" />
     <Compile Include="Model\LogLevel.cs" />
     <Compile Include="Model\PeerConected.cs" />
     <Compile Include="Model\PeerDisconnected.cs" />
     <Compile Include="Model\PeerIdentity.cs" />
-    <Compile Include="Model\TagsList.cs" />
+    <Compile Include="Model\PeerMetadata.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Helpers\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

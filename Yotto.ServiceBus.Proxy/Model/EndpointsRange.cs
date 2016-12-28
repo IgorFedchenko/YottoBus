@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using Yotto.ServiceBus.Helpers;
+using Yotto.ServiceBus.Proxy.Helpers;
 
-namespace Yotto.ServiceBus.Model
+namespace Yotto.ServiceBus.Proxy.Model
 {
     public class EndpointsRange
     {

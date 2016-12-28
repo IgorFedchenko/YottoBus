@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 
-namespace Yotto.ServiceBus.Helpers
+namespace Yotto.ServiceBus.Proxy.Helpers
 {
     public static class EndpointsRangeParser
     {
