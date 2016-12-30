@@ -12,15 +12,13 @@ namespace Yotto.ServiceBus.Model
     {
         public PeerIdentity() { }
 
-        public PeerIdentity(IPEndPoint endpoint, PeerMetadata metadata)
+        public PeerIdentity(PeerMetadata metadata)
         {
             Id = Guid.NewGuid();
-            Endpoint = endpoint.Address + ":" + endpoint.Port;
             Metadata = metadata;
         }
 
         public Guid Id { get; set; }
-        public string Endpoint { get; set; }
         public PeerMetadata Metadata { get; set; }
 
         public override bool Equals(object obj)

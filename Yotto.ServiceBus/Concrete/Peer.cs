@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Akka.Actor;
 using Yotto.ServiceBus.Abstract;
+using Yotto.ServiceBus.Concrete.Actors;
 using Yotto.ServiceBus.Configuration;
 using Yotto.ServiceBus.Model;
 
@@ -11,26 +14,34 @@ namespace Yotto.ServiceBus.Concrete
 {
     class Peer : IPeer
     {
+        private readonly ActorSystem _system;
+        private IActorRef _actor = ActorRefs.Nobody;
         private readonly IServiceBus _bus;
+        private object _connectLock = new object();
 
-        public Peer(PeerConfiguration configuration, IServiceBus bus)
+        public Peer(PeerConfiguration configuration, ActorSystem system, IServiceBus bus)
         {
+            _system = system;
             _bus = bus;
+
+            Identity = new PeerIdentity(configuration.Metadata);
         }
 
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
+        public PeerIdentity Identity { get; }
+
+        public bool IsConnected { get; private set; }
 
         public void Connect()
         {
-            throw new NotImplementedException();
+            lock (_connectLock)
+            {
+                if (!IsConnected)
+                {
+                    _actor = _system.ActorOf(Props.Create<PeerActor>());
+                    IsConnected = true;
+                }
+            }
         }
-
-        public bool IsConnected { get; }
-
-        public PeerIdentity Identity { get; }
 
         public PeerIdentity[] GetConnectedPeers()
         {
@@ -59,7 +70,19 @@ namespace Yotto.ServiceBus.Concrete
 
         public void Disconnect()
         {
-            throw new NotImplementedException();
+            lock (_connectLock)
+            {
+                if (IsConnected)
+                {
+                    _actor.Tell(PoisonPill.Instance);
+                    _actor = ActorRefs.Nobody;
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            Disconnect();
         }
     }
 }
