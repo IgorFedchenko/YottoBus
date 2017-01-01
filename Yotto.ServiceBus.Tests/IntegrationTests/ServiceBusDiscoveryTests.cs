@@ -48,7 +48,7 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
 
                 AwaitAssert(TimeSpan.FromSeconds(5), () =>
                 {
-                    Assert.AreEqual(peer1.GetConnectedPeers().First().Endpoint, peer2.Identity.Endpoint);
+                    Assert.AreEqual(peer1.GetConnectedPeers().First().Id, peer2.Identity.Id);
                     Assert.True(peer1.GetConnectedPeers().First().Metadata.Has("key"));
                     Assert.AreEqual(peer1.GetConnectedPeers().First().Metadata.Get("key"), "value");
                 });

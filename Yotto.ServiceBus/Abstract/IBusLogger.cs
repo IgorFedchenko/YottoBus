@@ -4,7 +4,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
-using Akka.Event;
+using Yotto.ServiceBus.Model;
 
 namespace Yotto.ServiceBus.Abstract
 {
@@ -19,5 +19,6 @@ namespace Yotto.ServiceBus.Abstract
         void Info(string message);
         void Warning(string message);
         void Error(string message, Exception ex = null);
+        void Log(LogLevel level, string message);
     }
 }

@@ -4,9 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using Akka.Actor;
 using Yotto.ServiceBus.Abstract;
-using Yotto.ServiceBus.Concrete.Actors;
 using Yotto.ServiceBus.Configuration;
 using Yotto.ServiceBus.Model;
 
@@ -14,17 +12,25 @@ namespace Yotto.ServiceBus.Concrete
 {
     class Peer : IPeer
     {
-        private readonly ActorSystem _system;
-        private IActorRef _actor = ActorRefs.Nobody;
         private readonly IServiceBus _bus;
-        private object _connectLock = new object();
+        private readonly ISubscriber _subscriber;
+        private readonly IPublisher _publisher;
+        private readonly IConnectionTracker _connectionTracker;
+        private readonly Dictionary<Type, HashSet<IEventHandler>> _handlers = new Dictionary<Type, HashSet<IEventHandler>>();
+        private readonly HashSet<PeerIdentity> _peers = new HashSet<PeerIdentity>();
 
-        public Peer(PeerConfiguration configuration, ActorSystem system, IServiceBus bus)
+        public Peer(PeerConfiguration configuration, IServiceBus bus, ISubscriber subscriber, IPublisher publisher, IConnectionTracker connectionTracker)
         {
-            _system = system;
             _bus = bus;
+            _subscriber = subscriber;
+            _publisher = publisher;
+            _connectionTracker = connectionTracker;
 
             Identity = new PeerIdentity(configuration.Metadata);
+
+            _subscriber.MessageReceived += HandleReceivedMessage;
+            _connectionTracker.PeerConnected += HandlPeerConnected;
+            _connectionTracker.PeerDisconnected += HandlPeerDisconnected;
         }
 
         public PeerIdentity Identity { get; }
@@ -33,56 +39,124 @@ namespace Yotto.ServiceBus.Concrete
 
         public void Connect()
         {
-            lock (_connectLock)
+            Connect(19876);
+        }
+
+        public void Connect(int proxyPort)
+        {
+            if (!IsConnected)
             {
-                if (!IsConnected)
-                {
-                    _actor = _system.ActorOf(Props.Create<PeerActor>());
-                    IsConnected = true;
-                }
+                var proxyEndpoint = new IPEndPoint(IPAddress.Loopback, proxyPort);
+
+                _subscriber.Start(proxyEndpoint);
+                _publisher.Start(proxyEndpoint);
+                _connectionTracker.Start(_publisher, _subscriber);
+
+                IsConnected = true;
+
+                Log(LogLevel.Debug, $"Peer {Identity.Id} connected to bus via proxy on {proxyPort}");
             }
         }
 
         public PeerIdentity[] GetConnectedPeers()
         {
-            throw new NotImplementedException();
+            return _peers.ToArray();
         }
 
         public void Subscribe<TEvent>(IEventHandler<TEvent> handler)
         {
-            throw new NotImplementedException();
+            var eventType = typeof(TEvent);
+            if (!_handlers.ContainsKey(eventType))
+                _handlers[eventType] = new HashSet<IEventHandler>();
+
+            _handlers[eventType].Add(handler);
+
+            Log(LogLevel.Trace, $"Peer {Identity.Id} subscribed to {eventType}");
         }
 
         public void Unsubscribe<TEvent>(IEventHandler<TEvent> handler)
         {
-            throw new NotImplementedException();
+            var eventType = typeof(TEvent);
+            if (_handlers.ContainsKey(eventType))
+            {
+                _handlers[eventType].Remove(handler);
+            }
+
+            Log(LogLevel.Trace, $"Peer {Identity.Id} unsubscribed from {eventType}");
         }
 
         public void Publish(object @event)
         {
-            throw new NotImplementedException();
+            _publisher.Publish(@event);
         }
 
         public void Send(object message, PeerIdentity target)
         {
-            throw new NotImplementedException();
+            _publisher.Send(message, target);
         }
 
         public void Disconnect()
         {
-            lock (_connectLock)
+            if (IsConnected)
             {
-                if (IsConnected)
-                {
-                    _actor.Tell(PoisonPill.Instance);
-                    _actor = ActorRefs.Nobody;
-                }
+                _publisher.Stop();
+                _subscriber.Stop();
+                _connectionTracker.Stop();
             }
+
+            Log(LogLevel.Debug, $"Peer {Identity.Id} disconnected from bus");
         }
 
         public void Dispose()
         {
+            _subscriber.MessageReceived -= HandleReceivedMessage;
+            _connectionTracker.PeerConnected -= HandlPeerConnected;
+            _connectionTracker.PeerDisconnected -= HandlPeerDisconnected;
+
             Disconnect();
+        }
+
+        private void HandleReceivedMessage(PeerIdentity peer, object message)
+        {
+            var eventType = message.GetType();
+            if (_handlers.ContainsKey(eventType))
+            {
+                foreach (var handler in _handlers[eventType])
+                {
+                    Type[] handlingTypes = handler.GetType().GetInterfaces()
+                     .Where(inf => inf.IsGenericType && inf.GetGenericTypeDefinition() == typeof(IEventHandler<>))
+                     .Select(inf => inf.GetGenericArguments().First())
+                     .ToArray();
+
+                    if (handlingTypes.Any(t => t == eventType || eventType.IsSubclassOf(t)))
+                    {
+                        // If handling this type of messages
+                        handler.GetType().GetMethod(nameof(IEventHandler<object>.Handle), new Type[] { eventType }).Invoke(handler, new object[] { message, peer });
+                    }
+                }
+            }
+        }
+
+        private void HandlPeerConnected(PeerIdentity peer)
+        {
+            _peers.Add(peer);
+
+            Log(LogLevel.Trace, $"Connected peer {peer.Id}");
+        }
+
+        private void HandlPeerDisconnected(PeerIdentity peer)
+        {
+            _peers.Remove(peer);
+
+            Log(LogLevel.Trace, $"Disconnected peer {peer.Id}");
+        }
+
+        private void Log(LogLevel level, string message)
+        {
+            foreach (var busLogger in _bus.Loggers.ToArray())
+            {
+                busLogger.Log(level, message);
+            }
         }
     }
 }
