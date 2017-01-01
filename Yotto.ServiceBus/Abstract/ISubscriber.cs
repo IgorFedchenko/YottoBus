@@ -16,9 +16,9 @@ namespace Yotto.ServiceBus.Abstract
 
         void UnsubscribeFrom<TMessage>();
 
-        void Start(int bindPort);
-        void Start(IPEndPoint publisher);
-        void Start(List<IPEndPoint> publishers);
+        void Start(int bindPort, PeerIdentity peer);
+        void Start(IPEndPoint publisher, PeerIdentity peer);
+        void Start(List<IPEndPoint> publishers, PeerIdentity peer);
 
         void Stop();
     }

@@ -30,8 +30,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Akka, Version=1.1.2.29, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Akka.1.1.2\lib\net45\Akka.dll</HintPath>
+    <Reference Include="AsyncIO, Version=0.1.20.0, Culture=neutral, PublicKeyToken=44a94435bd6f33f8, processorArchitecture=MSIL">
+      <HintPath>..\packages\AsyncIO.0.1.20.0\lib\net40\AsyncIO.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NetMQ, Version=3.3.3.4, Culture=neutral, PublicKeyToken=a6decef4ddc58b3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\NetMQ.3.3.3.4\lib\net40\NetMQ.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -57,18 +61,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Abstract\IBusLogger.cs" />
+    <Compile Include="Abstract\IConnectionTracker.cs" />
     <Compile Include="Abstract\IEventHandler.cs" />
     <Compile Include="Abstract\IPeer.cs" />
+    <Compile Include="Abstract\IPublisher.cs" />
     <Compile Include="Abstract\IServiceBus.cs" />
-    <Compile Include="Concrete\Actors\PeerActor.cs" />
+    <Compile Include="Abstract\ISubscriber.cs" />
     <Compile Include="Concrete\Peer.cs" />
+    <Compile Include="Concrete\Subscriber.cs" />
     <Compile Include="Concrete\YottoBus.cs" />
     <Compile Include="Concrete\ServiceBus.cs" />
     <Compile Include="Configuration\PeerConfiguration.cs" />
-    <Compile Include="Model\Heartbeat.cs" />
+    <Compile Include="Model\Messages\Heartbeat.cs" />
     <Compile Include="Model\LogLevel.cs" />
-    <Compile Include="Model\PeerConected.cs" />
-    <Compile Include="Model\PeerDisconnected.cs" />
+    <Compile Include="Model\Messages\Message.cs" />
     <Compile Include="Model\PeerIdentity.cs" />
     <Compile Include="Model\PeerMetadata.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
