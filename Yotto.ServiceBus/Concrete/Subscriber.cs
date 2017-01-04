@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -19,7 +20,7 @@ namespace Yotto.ServiceBus.Concrete
         private SubscriberSocket _socket;
         private CancellationTokenSource _cancellation;
 
-        public event Action<PeerIdentity, object> MessageReceived;
+        public BlockingCollection<Message> ReceivedMessages { get; } = new BlockingCollection<Message>();
 
         public void SubscribeTo<TMessage>()
         {
@@ -75,7 +76,7 @@ namespace Yotto.ServiceBus.Concrete
                         var messageString = _socket.ReceiveFrameString();
                    
                         var message = JsonConvert.DeserializeObject<Message>(messageString);
-                        MessageReceived?.Invoke(message.Sender, message.Content);
+                        ReceivedMessages.Add(message);
                     }
                     catch (Exception ex)
                     {

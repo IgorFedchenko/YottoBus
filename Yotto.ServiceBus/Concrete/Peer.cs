@@ -28,9 +28,10 @@ namespace Yotto.ServiceBus.Concrete
 
             Identity = new PeerIdentity(configuration.Metadata);
 
-            _subscriber.MessageReceived += HandleReceivedMessage;
             _connectionTracker.PeerConnected += HandlPeerConnected;
             _connectionTracker.PeerDisconnected += HandlPeerDisconnected;
+
+            StartMessagesHandling();
         }
 
         public PeerIdentity Identity { get; }
@@ -48,8 +49,8 @@ namespace Yotto.ServiceBus.Concrete
             {
                 var proxyEndpoint = new IPEndPoint(IPAddress.Loopback, proxyPort);
 
-                _subscriber.Start(proxyEndpoint);
-                _publisher.Start(proxyEndpoint);
+                _subscriber.Start(proxyEndpoint, Identity);
+                _publisher.Start(proxyEndpoint, Identity);
                 _connectionTracker.Start(_publisher, _subscriber);
 
                 IsConnected = true;
@@ -157,6 +158,24 @@ namespace Yotto.ServiceBus.Concrete
             {
                 busLogger.Log(level, message);
             }
+        }
+
+        private void StartMessagesHandling()
+        {
+            Task.Run(() =>
+            {
+                foreach (var receivedMessage in _subscriber.ReceivedMessages)
+                {
+                    try
+                    {
+                        HandleReceivedMessage(receivedMessage.Sender, receivedMessage.Content);
+                    }
+                    catch (Exception ex)
+                    {
+                       Log(LogLevel.Error, ex.ToString());
+                    }
+                }
+            })
         }
     }
 }

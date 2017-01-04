@@ -1,16 +1,18 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Yotto.ServiceBus.Model;
+using Yotto.ServiceBus.Model.Messages;
 
 namespace Yotto.ServiceBus.Abstract
 {
     interface ISubscriber
     {
-        event Action<PeerIdentity, object> MessageReceived;
+        BlockingCollection<Message> ReceivedMessages { get; } 
 
         void SubscribeTo<TMessage>();
 
