@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using Yotto.ServiceBus.Abstract;
 using Yotto.ServiceBus.Configuration;
@@ -19,7 +18,7 @@ namespace Yotto.ServiceBus.Concrete
         private readonly Dictionary<Type, HashSet<IEventHandler>> _handlers = new Dictionary<Type, HashSet<IEventHandler>>();
         private readonly HashSet<PeerIdentity> _peers = new HashSet<PeerIdentity>();
 
-        public Peer(PeerConfiguration configuration, IServiceBus bus, ISubscriber subscriber, IPublisher publisher, IConnectionTracker connectionTracker)
+        public Peer(PeerConfiguration configuration, IServiceBus bus, IPublisher publisher, ISubscriber subscriber, IConnectionTracker connectionTracker)
         {
             _bus = bus;
             _subscriber = subscriber;
@@ -28,8 +27,8 @@ namespace Yotto.ServiceBus.Concrete
 
             Identity = new PeerIdentity(configuration.Metadata);
 
-            _connectionTracker.PeerConnected += HandlPeerConnected;
-            _connectionTracker.PeerDisconnected += HandlPeerDisconnected;
+            _connectionTracker.PeerConnected += HandlePeerConnected;
+            _connectionTracker.PeerDisconnected += HandlePeerDisconnected;
 
             StartMessagesHandling();
         }
@@ -110,9 +109,8 @@ namespace Yotto.ServiceBus.Concrete
 
         public void Dispose()
         {
-            _subscriber.MessageReceived -= HandleReceivedMessage;
-            _connectionTracker.PeerConnected -= HandlPeerConnected;
-            _connectionTracker.PeerDisconnected -= HandlPeerDisconnected;
+            _connectionTracker.PeerConnected -= HandlePeerConnected;
+            _connectionTracker.PeerDisconnected -= HandlePeerDisconnected;
 
             Disconnect();
         }
@@ -138,14 +136,14 @@ namespace Yotto.ServiceBus.Concrete
             }
         }
 
-        private void HandlPeerConnected(PeerIdentity peer)
+        private void HandlePeerConnected(PeerIdentity peer)
         {
             _peers.Add(peer);
 
             Log(LogLevel.Trace, $"Connected peer {peer.Id}");
         }
 
-        private void HandlPeerDisconnected(PeerIdentity peer)
+        private void HandlePeerDisconnected(PeerIdentity peer)
         {
             _peers.Remove(peer);
 
@@ -172,10 +170,10 @@ namespace Yotto.ServiceBus.Concrete
                     }
                     catch (Exception ex)
                     {
-                       Log(LogLevel.Error, ex.ToString());
+                        Log(LogLevel.Error, ex.ToString());
                     }
                 }
-            })
+            });
         }
     }
 }

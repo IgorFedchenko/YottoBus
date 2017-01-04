@@ -10,11 +10,11 @@ namespace Yotto.ServiceBus.Abstract
 {
     interface IPublisher
     {
-        void Start(int bindPort, PeerIdentity peer);
+        void Start(int bindPort, PeerIdentity selfIdentity);
 
-        void Start(IPEndPoint subscriber, PeerIdentity peer);
+        void Start(IPEndPoint subscriber, PeerIdentity selfIdentity);
 
-        void Start(List<IPEndPoint> subscribers, PeerIdentity peer);
+        void Start(List<IPEndPoint> subscribers, PeerIdentity selfIdentity);
 
         void Stop();
 

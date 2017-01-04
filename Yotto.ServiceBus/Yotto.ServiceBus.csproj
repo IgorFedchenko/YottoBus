@@ -68,9 +68,9 @@
     <Compile Include="Abstract\IServiceBus.cs" />
     <Compile Include="Abstract\ISubscriber.cs" />
     <Compile Include="Concrete\Peer.cs" />
+    <Compile Include="Concrete\Publisher.cs" />
     <Compile Include="Concrete\Subscriber.cs" />
     <Compile Include="Concrete\YottoBus.cs" />
-    <Compile Include="Concrete\ServiceBus.cs" />
     <Compile Include="Configuration\PeerConfiguration.cs" />
     <Compile Include="Model\Messages\Heartbeat.cs" />
     <Compile Include="Model\LogLevel.cs" />
