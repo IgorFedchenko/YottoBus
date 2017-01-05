@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Yotto.ServiceBus.Abstract;
 using Yotto.ServiceBus.Configuration;
 using Yotto.ServiceBus.Model;
@@ -30,7 +31,7 @@ namespace Yotto.ServiceBus.Concrete
             _connectionTracker.PeerConnected += HandlePeerConnected;
             _connectionTracker.PeerDisconnected += HandlePeerDisconnected;
 
-            StartMessagesHandling();
+            _subscriber.MessageReceived += msg => HandleReceivedMessage(msg.Sender, msg.Content);
         }
 
         public PeerIdentity Identity { get; }
@@ -117,22 +118,32 @@ namespace Yotto.ServiceBus.Concrete
 
         private void HandleReceivedMessage(PeerIdentity peer, object message)
         {
-            var eventType = message.GetType();
-            if (_handlers.ContainsKey(eventType))
+            try
             {
-                foreach (var handler in _handlers[eventType])
+                var eventType = message.GetType();
+                if (_handlers.ContainsKey(eventType))
                 {
-                    Type[] handlingTypes = handler.GetType().GetInterfaces()
-                     .Where(inf => inf.IsGenericType && inf.GetGenericTypeDefinition() == typeof(IEventHandler<>))
-                     .Select(inf => inf.GetGenericArguments().First())
-                     .ToArray();
-
-                    if (handlingTypes.Any(t => t == eventType || eventType.IsSubclassOf(t)))
+                    foreach (var handler in _handlers[eventType])
                     {
-                        // If handling this type of messages
-                        handler.GetType().GetMethod(nameof(IEventHandler<object>.Handle), new Type[] { eventType }).Invoke(handler, new object[] { message, peer });
+                        Type[] handlingTypes = handler.GetType().GetInterfaces()
+                            .Where(
+                                inf => inf.IsGenericType && inf.GetGenericTypeDefinition() == typeof (IEventHandler<>))
+                            .Select(inf => inf.GetGenericArguments().First())
+                            .ToArray();
+
+                        if (handlingTypes.Any(t => t == eventType || eventType.IsSubclassOf(t)))
+                        {
+                            // If handling this type of messages
+                            handler.GetType()
+                                .GetMethod(nameof(IEventHandler<object>.Handle), new Type[] {eventType})
+                                .Invoke(handler, new object[] {message, peer});
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                Log(LogLevel.Error, $"Failed to handle message {JsonConvert.SerializeObject(message)}: {ex}");
             }
         }
 
@@ -156,24 +167,6 @@ namespace Yotto.ServiceBus.Concrete
             {
                 busLogger.Log(level, message);
             }
-        }
-
-        private void StartMessagesHandling()
-        {
-            Task.Run(() =>
-            {
-                foreach (var receivedMessage in _subscriber.ReceivedMessages)
-                {
-                    try
-                    {
-                        HandleReceivedMessage(receivedMessage.Sender, receivedMessage.Content);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log(LogLevel.Error, ex.ToString());
-                    }
-                }
-            });
         }
     }
 }

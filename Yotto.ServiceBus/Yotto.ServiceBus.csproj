@@ -67,11 +67,13 @@
     <Compile Include="Abstract\IPublisher.cs" />
     <Compile Include="Abstract\IServiceBus.cs" />
     <Compile Include="Abstract\ISubscriber.cs" />
+    <Compile Include="Concrete\ConnectionTracker.cs" />
     <Compile Include="Concrete\Peer.cs" />
     <Compile Include="Concrete\Publisher.cs" />
     <Compile Include="Concrete\Subscriber.cs" />
     <Compile Include="Concrete\YottoBus.cs" />
     <Compile Include="Configuration\PeerConfiguration.cs" />
+    <Compile Include="Helpers\Deadline.cs" />
     <Compile Include="Model\Messages\Heartbeat.cs" />
     <Compile Include="Model\LogLevel.cs" />
     <Compile Include="Model\Messages\Message.cs" />
@@ -82,9 +84,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Helpers\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

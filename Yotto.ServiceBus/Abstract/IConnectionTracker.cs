@@ -9,7 +9,7 @@ namespace Yotto.ServiceBus.Abstract
 {
     interface IConnectionTracker
     {
-        void Start(IPublisher publisher, ISubscriber subscriber);
+        void Start(IPublisher publisher, ISubscriber subscriber, PeerIdentity selfIdentity);
 
         void Stop();
 

@@ -20,7 +20,7 @@ namespace Yotto.ServiceBus.Concrete
         private SubscriberSocket _socket;
         private CancellationTokenSource _cancellation;
 
-        public BlockingCollection<Message> ReceivedMessages { get; } = new BlockingCollection<Message>();
+        public event Action<Message> MessageReceived;
 
         public void SubscribeTo<TMessage>()
         {
@@ -76,7 +76,10 @@ namespace Yotto.ServiceBus.Concrete
                         var messageString = _socket.ReceiveFrameString();
                    
                         var message = JsonConvert.DeserializeObject<Message>(messageString);
-                        ReceivedMessages.Add(message);
+                        foreach (var @delegate in MessageReceived?.GetInvocationList().ToArray() ?? new Delegate[0])
+                        {
+                            ((Action<Message>) @delegate)?.BeginInvoke(message, null, null);
+                        }
                     }
                     catch (Exception ex)
                     {

@@ -12,7 +12,7 @@ namespace Yotto.ServiceBus.Abstract
 {
     interface ISubscriber
     {
-        BlockingCollection<Message> ReceivedMessages { get; } 
+        event Action<Message> MessageReceived; 
 
         void SubscribeTo<TMessage>();
 
