@@ -43,12 +43,12 @@ namespace Yotto.ServiceBus.Concrete
             Connect(19876, 19877);
         }
 
-        public void Connect(int proxyForPublishersPort, int proxyForSubscribersPort)
+        public void Connect(int proxyPortForPublishersPort, int proxyPortForSubscribers)
         {
             if (!IsConnected)
             {
-                var publishProxyEndpoint = new IPEndPoint(IPAddress.Loopback, proxyForPublishersPort);
-                var subscribeProxyEndpoint = new IPEndPoint(IPAddress.Loopback, proxyForPublishersPort);
+                var publishProxyEndpoint = new IPEndPoint(IPAddress.Loopback, proxyPortForPublishersPort);
+                var subscribeProxyEndpoint = new IPEndPoint(IPAddress.Loopback, proxyPortForPublishersPort);
 
                 _subscriber.Start(subscribeProxyEndpoint, Identity);
                 _publisher.Start(publishProxyEndpoint, Identity);
@@ -56,7 +56,7 @@ namespace Yotto.ServiceBus.Concrete
 
                 IsConnected = true;
 
-                Log(LogLevel.Debug, $"Peer {Identity.Id} connected to bus via proxy on {proxyForPublishersPort}/{proxyForSubscribersPort} ports");
+                Log(LogLevel.Debug, $"Peer {Identity.Id} connected to bus via proxy on {proxyPortForPublishersPort}/{proxyPortForSubscribers} ports");
             }
         }
 

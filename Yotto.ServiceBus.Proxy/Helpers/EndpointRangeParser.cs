@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 
@@ -11,6 +12,7 @@ namespace Yotto.ServiceBus.Proxy.Helpers
             string[] ipAndPort = endpointsRange.Split(':');
 
             string[] ports = ParseList(ipAndPort[1]).SelectMany(ParseRange, (range, port) => port).Distinct().ToArray();
+            ValidatePorts(ports);
 
             string[] octetsRegions = ipAndPort[0].Split('.');
             List<string[]> octetLists = octetsRegions.Select(ParseList).ToList();
@@ -24,10 +26,40 @@ namespace Yotto.ServiceBus.Proxy.Helpers
                 }
                 newOctetLists.Add(newOctetsList);
             }
+
+            ValidateIps(newOctetLists);
+
             string[] ips = CartesianProduct(newOctetLists).Select(octets => string.Join(".", octets)).Distinct().ToArray();
 
             List<IPEndPoint> endpoints = CartesianProduct(new [] { ips, ports }).Select(parts => BuildEndpoint(parts.First(), parts.Last())).ToList();
             return endpoints;
+        }
+
+        private static void ValidatePorts(string[] ports)
+        {
+            const string errorText = "Invalid port value: {0}: each port should be a number greater then 0";
+            foreach (var port in ports)
+            {
+                int value;
+                if (!int.TryParse(port, out value) || value <= 0)
+                {
+                    throw new ArgumentException(string.Format(errorText, port));
+                }
+            }
+        }
+
+        private static void ValidateIps(List<List<string>> newOctetLists)
+        {
+            const string errorText = "Invalid IP octet value: {0}: each octet should be a number in 0-254 range";
+            IEnumerable<string> allOctets = newOctetLists.SelectMany(list => list, (list, elem) => elem);
+            foreach (var octet in allOctets)
+            {
+                int value;
+                if (!int.TryParse(octet, out value) || value < 0 || value > 254)
+                {
+                    throw new ArgumentException(string.Format(errorText, octet));
+                }
+            }
         }
 
         private static IPEndPoint BuildEndpoint(string ip, string port)

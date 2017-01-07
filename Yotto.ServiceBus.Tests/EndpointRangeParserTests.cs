@@ -82,5 +82,15 @@ namespace Yotto.ServiceBus.Tests
 
             CollectionAssert.AreEquivalent(endpoints, result);
         }
+
+        [Test]
+        public void ShouldValidateInput()
+        {
+            string invalidIp = "192.168.0.255";
+            string validIp = "192.168.0.254";
+
+            Assert.Throws<ArgumentException>(() => EndpointsRangeParser.Parse(invalidIp + ":2555"));
+            Assert.Throws<ArgumentException>(() => EndpointsRangeParser.Parse(validIp + ":0"));
+        }
     }
 }
