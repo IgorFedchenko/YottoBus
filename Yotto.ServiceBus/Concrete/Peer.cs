@@ -40,22 +40,23 @@ namespace Yotto.ServiceBus.Concrete
 
         public void Connect()
         {
-            Connect(19876);
+            Connect(19876, 19877);
         }
 
-        public void Connect(int proxyPort)
+        public void Connect(int proxyForPublishersPort, int proxyForSubscribersPort)
         {
             if (!IsConnected)
             {
-                var proxyEndpoint = new IPEndPoint(IPAddress.Loopback, proxyPort);
+                var publishProxyEndpoint = new IPEndPoint(IPAddress.Loopback, proxyForPublishersPort);
+                var subscribeProxyEndpoint = new IPEndPoint(IPAddress.Loopback, proxyForPublishersPort);
 
-                _subscriber.Start(proxyEndpoint, Identity);
-                _publisher.Start(proxyEndpoint, Identity);
-                _connectionTracker.Start(_publisher, _subscriber);
+                _subscriber.Start(subscribeProxyEndpoint, Identity);
+                _publisher.Start(publishProxyEndpoint, Identity);
+                _connectionTracker.Start(_publisher, _subscriber, Identity);
 
                 IsConnected = true;
 
-                Log(LogLevel.Debug, $"Peer {Identity.Id} connected to bus via proxy on {proxyPort}");
+                Log(LogLevel.Debug, $"Peer {Identity.Id} connected to bus via proxy on {proxyForPublishersPort}/{proxyForSubscribersPort} ports");
             }
         }
 

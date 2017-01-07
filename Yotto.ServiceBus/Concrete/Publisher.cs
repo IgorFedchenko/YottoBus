@@ -41,7 +41,6 @@ namespace Yotto.ServiceBus.Concrete
             {
                 _socket.Connect($"tcp://{subscriber.Address}:{subscriber.Port}");
             }
-
         }
 
         public void Stop()
