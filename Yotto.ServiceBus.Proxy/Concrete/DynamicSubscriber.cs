@@ -10,6 +10,9 @@ using NetMQ;
 
 namespace Yotto.ServiceBus.Proxy.Concrete
 {
+    /// <summary>
+    /// Manages subscriptions of the given NetMQ Socket according to given endpoints list
+    /// </summary>
     class DynamicSubscriber
     {
         private readonly NetMQSocket _subscriberSocket;
@@ -31,14 +34,7 @@ namespace Yotto.ServiceBus.Proxy.Concrete
 
         private void CheckEndpoint(IPEndPoint endpoint)
         {
-            var ping = new Ping();
-            ping.SendPingAsync(endpoint.Address).ContinueWith(t =>
-            {
-                if (t.IsFaulted || t.Result.Status != IPStatus.Success)
-                    CheckEndpoint(endpoint);
-                else
-                    _subscriberSocket.Connect($"tcp://{endpoint.Address}:{endpoint.Port}");
-            });
+            _subscriberSocket.Connect($"tcp://{endpoint.Address}:{endpoint.Port}");
         }
     }
 }
