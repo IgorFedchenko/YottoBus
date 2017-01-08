@@ -92,5 +92,13 @@ namespace Yotto.ServiceBus.Tests
             Assert.Throws<ArgumentException>(() => EndpointsRangeParser.Parse(invalidIp + ":2555"));
             Assert.Throws<ArgumentException>(() => EndpointsRangeParser.Parse(validIp + ":0"));
         }
+
+        [Test]
+        public void ShouldAcceptLocalhost()
+        {
+            string localhostEndpoint = "localhost:8888";
+
+            CollectionAssert.AreEqual(new List<IPEndPoint>() { new IPEndPoint(IPAddress.Loopback, 8888) }, EndpointsRangeParser.Parse(localhostEndpoint));
+        }
     }
 }

@@ -9,6 +9,8 @@ namespace Yotto.ServiceBus.Proxy.Helpers
     {
         public static List<IPEndPoint> Parse(string endpointsRange)
         {
+            endpointsRange = endpointsRange.Replace("localhost", "127.0.0.1");
+
             string[] ipAndPort = endpointsRange.Split(':');
 
             string[] ports = ParseList(ipAndPort[1]).SelectMany(ParseRange, (range, port) => port).Distinct().ToArray();
