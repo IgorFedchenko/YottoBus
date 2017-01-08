@@ -25,7 +25,6 @@ namespace Yotto.ServiceBus.Concrete
         private static void RegisterDependencies()
         {
             _container = new StandardKernel();
-            _container.Bind<IKernel>().ToConstant(_container);
             _container.Bind<IServiceBus>().To<YottoBus>().InSingletonScope();
             _container.Bind<IPeer>().To<Peer>();
             _container.Bind<ISubscriber>().To<Subscriber>();
