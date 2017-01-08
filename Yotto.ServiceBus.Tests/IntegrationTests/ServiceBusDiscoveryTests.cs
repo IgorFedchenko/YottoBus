@@ -19,7 +19,7 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
         [Test]
         public void ShouldDiscoverEachOther()
         {
-            var bus = YottoBus.Create();
+            var bus = YottoBusFactory.Create();
 
             using (var peer1 = bus.CreatePeer(new PeerConfiguration()))
             using (var peer2 = bus.CreatePeer(new PeerConfiguration()))
@@ -38,7 +38,7 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
         [Test]
         public void ShouldDiscoverWithInnerData()
         {
-            var bus = YottoBus.Create();
+            var bus = YottoBusFactory.Create();
 
             using (var peer1 = bus.CreatePeer(new PeerConfiguration() { Metadata = new PeerMetadata(new Dictionary<string, string>() { ["key"] = "value" })}))
             using (var peer2 = bus.CreatePeer(new PeerConfiguration()))
@@ -58,7 +58,7 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
         [Test]
         public void ShouldDiscoverDisconnect()
         {
-            var bus = YottoBus.Create();
+            var bus = YottoBusFactory.Create();
 
             using (var peer1 = bus.CreatePeer(new PeerConfiguration()))
             using (var peer2 = bus.CreatePeer(new PeerConfiguration()))
@@ -84,7 +84,7 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
         // [Test]
         public void MemoryConsumptionTest()
         {
-            var bus = YottoBus.Create();
+            var bus = YottoBusFactory.Create();
 
             using (var peer1 = bus.CreatePeer(new PeerConfiguration()))
             using (var peer2 = bus.CreatePeer(new PeerConfiguration()))

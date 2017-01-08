@@ -72,6 +72,7 @@
     <Compile Include="Concrete\Publisher.cs" />
     <Compile Include="Concrete\Subscriber.cs" />
     <Compile Include="Concrete\YottoBus.cs" />
+    <Compile Include="Concrete\YottoBusFactory.cs" />
     <Compile Include="Configuration\PeerConfiguration.cs" />
     <Compile Include="Helpers\Deadline.cs" />
     <Compile Include="Model\Messages\Heartbeat.cs" />
