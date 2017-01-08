@@ -14,37 +14,20 @@ namespace Yotto.ServiceBus.Concrete
 {
     public class YottoBus : IServiceBus
     {
-        private static IKernel _container;
+        private readonly IKernel _container;
 
-        private YottoBus() { }
-
-        static YottoBus()
+        public YottoBus(IKernel container)
         {
-            RegisterDependencies();
+            _container = container;
         }
 
         public List<IBusLogger> Loggers { get; } = new List<IBusLogger>();
-
-        public static IServiceBus Create()
-        {
-            return _container.Get<IServiceBus>();
-        }
 
         public IPeer CreatePeer(PeerConfiguration configuration)
         {
             var conf = new Ninject.Parameters.ConstructorArgument("configuration", configuration);
 
             return _container.Get<IPeer>(conf);
-        }
-
-        private static void RegisterDependencies()
-        {
-            _container = new StandardKernel();
-            _container.Bind<IServiceBus>().To<YottoBus>().InSingletonScope();
-            _container.Bind<IPeer>().To<Peer>();
-            _container.Bind<ISubscriber>().To<Subscriber>();
-            _container.Bind<IPublisher>().To<Publisher>();
-            _container.Bind<IConnectionTracker>().To<ConnectionTracker>();
         }
     }
 }
