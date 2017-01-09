@@ -17,7 +17,7 @@ namespace Yotto.ServiceBus.Proxy
                 BusPublisherPort = 19800,
                 DiscoveryAddressPatterns = new List<string>()
                 {
-                    "10.5.[5-7].[1-254]"
+                    "127.0.0.1"
                 },
                 PortForPublishers = 19876,
                 PortForSubscribers = 19877
