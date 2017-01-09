@@ -30,6 +30,8 @@ namespace Yotto.ServiceBus.Concrete
             _subscriber = subscriber;
             _selfIdentity = selfIdentity;
 
+            _subscriber.SubscribeTo<Heartbeat>();
+
             _subscriber.MessageReceived += HandleIfHeartbeat;
 
             _cancel = new CancellationTokenSource();
