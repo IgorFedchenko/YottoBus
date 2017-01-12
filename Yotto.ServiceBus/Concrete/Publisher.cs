@@ -51,7 +51,7 @@ namespace Yotto.ServiceBus.Concrete
         public void Publish(object message)
         {
             string topic = message.GetType().AssemblyQualifiedName;
-            string serializedMessage = JsonConvert.SerializeObject(WrapMessage(message));
+            string serializedMessage = WrapMessage(message).ToString();
 
             _socket.SendMoreFrame(Encode(topic)).SendFrame(Encode(serializedMessage));
         }
@@ -59,7 +59,7 @@ namespace Yotto.ServiceBus.Concrete
         public void Send(object message, PeerIdentity peer)
         {
             string topic = peer.Id.ToString();
-            string serializedMessage = JsonConvert.SerializeObject(WrapMessage(message));
+            string serializedMessage = WrapMessage(message).ToString();
 
             _socket.SendMoreFrame(Encode(topic)).SendFrame(Encode(serializedMessage));
         }

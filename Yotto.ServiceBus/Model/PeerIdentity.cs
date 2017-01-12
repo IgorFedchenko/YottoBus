@@ -32,6 +32,11 @@ namespace Yotto.ServiceBus.Model
             return base.Equals(obj);
         }
 
+        public override int GetHashCode()
+        {
+            return 0;
+        }
+
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this);
