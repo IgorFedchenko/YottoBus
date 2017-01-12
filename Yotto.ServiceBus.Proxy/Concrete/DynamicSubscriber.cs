@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using NetMQ;
+using NetMQ.Sockets;
 
 namespace Yotto.ServiceBus.Proxy.Concrete
 {
@@ -15,10 +16,10 @@ namespace Yotto.ServiceBus.Proxy.Concrete
     /// </summary>
     class DynamicSubscriber
     {
-        private readonly NetMQSocket _subscriberSocket;
+        private readonly XSubscriberSocket _subscriberSocket;
         private readonly List<IPEndPoint> _endpointsForDiscovering;
 
-        public DynamicSubscriber(NetMQSocket subscriberSocket, List<IPEndPoint> endpointsForDiscovering)
+        public DynamicSubscriber(XSubscriberSocket subscriberSocket, List<IPEndPoint> endpointsForDiscovering)
         {
             _subscriberSocket = subscriberSocket;
             _endpointsForDiscovering = endpointsForDiscovering;

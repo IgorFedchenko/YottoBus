@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using NetMQ;
 using NetMQ.Sockets;
 using Yotto.ServiceBus.Proxy.Configuration;
 using Yotto.ServiceBus.Proxy.Helpers;
@@ -32,7 +33,7 @@ namespace Yotto.ServiceBus.Proxy.Concrete
                     var dynamicSubscriber = new DynamicSubscriber(xsubSocket, discoveryEndpoints);
                     dynamicSubscriber.StartDiscovering();
 
-                    var proxy = new NetMQ.Proxy(xsubSocket, xpubSocket);
+                    var proxy = new NetMQ.Proxy(xpubSocket, xsubSocket);
 
                     proxy.Start();
                 }
@@ -43,13 +44,15 @@ namespace Yotto.ServiceBus.Proxy.Concrete
         {
             Task.Run(() =>
             {
-                using (var xsubSocket = new XSubscriberSocket())
-                using (var xpubSocket = new XPublisherSocket())
+                using (var subSocket = new SubscriberSocket())
+                using (var pubSocket = new PublisherSocket())
                 {
-                    xsubSocket.Bind($"tcp://localhost:{proxyForPublishersPort}");
-                    xpubSocket.Bind($"tcp://localhost:{busPublisherPort}");
+                    subSocket.SubscribeToAnyTopic();
+                    subSocket.Bind($"tcp://localhost:{proxyForPublishersPort}");
 
-                    var proxy = new NetMQ.Proxy(xsubSocket, xpubSocket);
+                    pubSocket.Bind($"tcp://localhost:{busPublisherPort}");
+
+                    var proxy = new NetMQ.Proxy(subSocket, pubSocket);
 
                     proxy.Start();
                 }

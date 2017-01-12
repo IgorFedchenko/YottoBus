@@ -48,7 +48,7 @@ namespace Yotto.ServiceBus.Concrete
             if (!IsConnected)
             {
                 var publishProxyEndpoint = new IPEndPoint(IPAddress.Loopback, proxyPortForPublishersPort);
-                var subscribeProxyEndpoint = new IPEndPoint(IPAddress.Loopback, proxyPortForPublishersPort);
+                var subscribeProxyEndpoint = new IPEndPoint(IPAddress.Loopback, proxyPortForSubscribers);
 
                 _subscriber.Start(subscribeProxyEndpoint, Identity);
                 _publisher.Start(publishProxyEndpoint, Identity);
