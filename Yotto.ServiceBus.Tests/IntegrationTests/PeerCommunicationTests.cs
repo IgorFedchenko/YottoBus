@@ -132,5 +132,37 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
                 });
             }
         }
+
+        [Test]
+        public void SendDedicatedMessageTest()
+        {
+            var bus = YottoBusFactory.Create();
+
+            using (var peer1 = bus.CreatePeer(new PeerConfiguration()))
+            using (var peer2 = bus.CreatePeer(new PeerConfiguration()))
+            {
+                peer1.Connect();
+                peer2.Connect();
+
+                var subscriberToReceive = new SubscriberFor<string>();
+                var subscriberToSkip = new SubscriberFor<string>();
+                peer1.Subscribe(subscriberToReceive);
+                peer2.Subscribe(subscriberToSkip);
+
+                Thread.Sleep(50);
+
+                var message = "Hello";
+                peer2.Send(message, peer1.Identity);
+
+                AwaitAssert(TimeSpan.FromSeconds(5), () =>
+                {
+                    CollectionAssert.Contains(subscriberToReceive.ReceivedMessages, message);
+                });
+
+                Thread.Sleep(1000);
+
+                CollectionAssert.IsEmpty(subscriberToSkip.ReceivedMessages);
+            }
+        }
     }
 }
