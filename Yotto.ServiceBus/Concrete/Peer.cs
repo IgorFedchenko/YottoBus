@@ -104,6 +104,7 @@ namespace Yotto.ServiceBus.Concrete
                 _publisher.Stop();
                 _subscriber.Stop();
                 _connectionTracker.Stop();
+                IsConnected = false;
             }
 
             Log(LogLevel.Debug, $"Peer {Identity.Id} disconnected from bus");

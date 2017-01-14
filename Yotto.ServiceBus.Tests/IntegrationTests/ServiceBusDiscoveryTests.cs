@@ -29,9 +29,26 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
 
                 AwaitAssert(TimeSpan.FromSeconds(5), () =>
                 {
-                    CollectionAssert.AreEquivalent(new[] { peer1.Identity, peer2.Identity }, peer1.GetConnectedPeers());
-                    CollectionAssert.AreEquivalent(new[] { peer1.Identity, peer2.Identity }, peer2.GetConnectedPeers());
+                    CollectionAssert.AreEquivalent(new[] {peer1.Identity, peer2.Identity}, peer1.GetConnectedPeers());
+                    CollectionAssert.AreEquivalent(new[] {peer1.Identity, peer2.Identity}, peer2.GetConnectedPeers());
                 });
+            }
+        }
+
+        [Test]
+        public void ShouldSetIsConnectedProperly()
+        {
+            var bus = YottoBusFactory.Create();
+
+            using (var peer1 = bus.CreatePeer(new PeerConfiguration()))
+            {
+                peer1.Connect();
+                
+                Assert.True(peer1.IsConnected);
+
+                peer1.Disconnect();
+
+                Assert.False(peer1.IsConnected);
             }
         }
 
