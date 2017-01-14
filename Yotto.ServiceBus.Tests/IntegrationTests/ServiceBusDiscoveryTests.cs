@@ -29,8 +29,8 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
 
                 AwaitAssert(TimeSpan.FromSeconds(5), () =>
                 {
-                    CollectionAssert.AreEquivalent(new[] { peer2.Identity }, peer1.GetConnectedPeers());
-                    CollectionAssert.AreEquivalent(new[] { peer1.Identity }, peer2.GetConnectedPeers());
+                    CollectionAssert.AreEquivalent(new[] { peer1.Identity, peer2.Identity }, peer1.GetConnectedPeers());
+                    CollectionAssert.AreEquivalent(new[] { peer1.Identity, peer2.Identity }, peer2.GetConnectedPeers());
                 });
             }
         }
@@ -40,15 +40,13 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
         {
             var bus = YottoBusFactory.Create();
 
-            using (var peer1 = bus.CreatePeer(new PeerConfiguration() { Metadata = new PeerMetadata(new Dictionary<string, string>() { ["key"] = "value" })}))
-            using (var peer2 = bus.CreatePeer(new PeerConfiguration()))
+            using (var peer1= bus.CreatePeer(new PeerConfiguration() { Metadata = new PeerMetadata(new Dictionary<string, string>() { ["key"] = "value" }) }))
             {
                 peer1.Connect();
-                peer2.Connect();
 
                 AwaitAssert(TimeSpan.FromSeconds(5), () =>
                 {
-                    Assert.AreEqual(peer1.GetConnectedPeers().First().Id, peer2.Identity.Id);
+                    Assert.True(peer1.GetConnectedPeers().Any());
                     Assert.True(peer1.GetConnectedPeers().First().Metadata.Has("key"));
                     Assert.AreEqual(peer1.GetConnectedPeers().First().Metadata.Get("key"), "value");
                 });
@@ -66,18 +64,23 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
                 peer1.Connect();
                 peer2.Connect();
 
-                AwaitAssert(TimeSpan.FromSeconds(5), () =>
+                Console.WriteLine(DateTime.Now + "Started");
+
+                AwaitAssert(TimeSpan.FromSeconds(50), () =>
                 {
-                    CollectionAssert.AreEquivalent(new[] { peer2.Identity }, peer1.GetConnectedPeers());
-                    CollectionAssert.AreEquivalent(new[] { peer1.Identity }, peer2.GetConnectedPeers());
+                    CollectionAssert.Contains(peer1.GetConnectedPeers(), peer2.Identity);
                 });
+
+                Console.WriteLine(DateTime.Now + "Connected");
 
                 peer2.Disconnect();
 
-                AwaitAssert(TimeSpan.FromSeconds(5), () =>
+                AwaitAssert(TimeSpan.FromSeconds(50), () =>
                 {
-                    CollectionAssert.IsEmpty(peer1.GetConnectedPeers());
+                    CollectionAssert.DoesNotContain(peer1.GetConnectedPeers(), peer2.Identity);
                 });
+
+                Console.WriteLine(DateTime.Now + "Disconnected");
             }
         }
 

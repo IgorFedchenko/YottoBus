@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Yotto.ServiceBus.Model
 {
     public class PeerMetadata
     {
+        [JsonProperty]
         private readonly Dictionary<string, string> _metadata;
 
         public PeerMetadata() : this(new Dictionary<string, string>()) { }

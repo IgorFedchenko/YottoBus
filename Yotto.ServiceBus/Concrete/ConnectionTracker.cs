@@ -49,9 +49,9 @@ namespace Yotto.ServiceBus.Concrete
         {
             while (!_cancel.IsCancellationRequested)
             {
-                await Task.Delay(TimeSpan.FromSeconds(1));
-
                 _publisher.Publish(new Heartbeat() { Identity = _selfIdentity });
+
+                await Task.Delay(TimeSpan.FromSeconds(1));
             }
         }
 
@@ -59,7 +59,7 @@ namespace Yotto.ServiceBus.Concrete
         {
             while (!_cancel.IsCancellationRequested)
             {
-                await Task.Delay(TimeSpan.FromSeconds(1));
+                await Task.Delay(TimeSpan.FromMilliseconds(100));
 
                 foreach (var peerHeartbeatDeadline in _peerHeartbeatDeadlines.Where(peerHeartbeatDeadline => peerHeartbeatDeadline.Value.IsExpired).ToArray())
                 {

@@ -79,6 +79,7 @@ namespace Yotto.ServiceBus.Concrete
                         {
                             TypeNameHandling = TypeNameHandling.Auto
                         });
+
                         foreach (var @delegate in MessageReceived?.GetInvocationList().ToArray() ?? new Delegate[0])
                         {
                             ((Action<Message>) @delegate)?.BeginInvoke(message, null, null);
