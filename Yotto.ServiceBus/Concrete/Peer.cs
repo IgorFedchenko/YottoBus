@@ -66,37 +66,51 @@ namespace Yotto.ServiceBus.Concrete
             return _peers.ToArray();
         }
 
-        public void Subscribe<TEvent>(IMessageHandler<TEvent> handler)
+        public void Subscribe(IMessageHandler handler)
         {
-            var eventType = typeof(TEvent);
-            if (!_handlers.ContainsKey(eventType))
-                _handlers[eventType] = new HashSet<IMessageHandler>();
+            Type[] handlingTypes = handler.GetType().GetInterfaces()
+                            .Where(
+                                inf => inf.IsGenericType && inf.GetGenericTypeDefinition() == typeof(IMessageHandler<>))
+                            .Select(inf => inf.GetGenericArguments().First())
+                            .ToArray();
 
-            _handlers[eventType].Add(handler);
+            foreach (var messageType in handlingTypes)
+            {
+                if (!_handlers.ContainsKey(messageType))
+                    _handlers[messageType] = new HashSet<IMessageHandler>();
 
-            _subscriber.SubscribeTo<TEvent>();
+                _handlers[messageType].Add(handler);
 
-            Log(LogLevel.Trace, $"Peer {Identity.Id} subscribed to {eventType}");
+                _subscriber.SubscribeTo(messageType);
+            }
         }
 
-        public void Unsubscribe<TEvent>(IMessageHandler<TEvent> handler)
+        public void Unsubscribe(IMessageHandler handler)
         {
-            var eventType = typeof(TEvent);
-            if (_handlers.ContainsKey(eventType))
+            Type[] handlingTypes = handler.GetType().GetInterfaces()
+                            .Where(
+                                inf => inf.IsGenericType && inf.GetGenericTypeDefinition() == typeof(IMessageHandler<>))
+                            .Select(inf => inf.GetGenericArguments().First())
+                            .ToArray();
+
+            foreach (var messageType in handlingTypes)
             {
-                _handlers[eventType].Remove(handler);
-                if (!_handlers[eventType].Any())
+                if (_handlers.ContainsKey(messageType))
                 {
-                    _handlers.Remove(eventType);
+                    _handlers[messageType].Remove(handler);
+                    if (!_handlers[messageType].Any())
+                    {
+                        _handlers.Remove(messageType);
+                    }
                 }
-            }
 
-            if (!_handlers.ContainsKey(eventType))
-            {
-                _subscriber.UnsubscribeFrom<TEvent>();
-            }
+                if (!_handlers.ContainsKey(messageType))
+                {
+                    _subscriber.UnsubscribeFrom(messageType);
+                }
 
-            Log(LogLevel.Trace, $"Peer {Identity.Id} unsubscribed from {eventType}");
+                Log(LogLevel.Trace, $"Peer {Identity.Id} unsubscribed from {messageType}");
+            }
         }
 
         public void Publish(object @event)

@@ -23,14 +23,14 @@ namespace Yotto.ServiceBus.Concrete
 
         public event Action<Message> MessageReceived;
 
-        public void SubscribeTo<TMessage>()
+        public void SubscribeTo(Type messageType)
         {
-            _socket.Subscribe(typeof(TMessage).AssemblyQualifiedName);
+            _socket.Subscribe(messageType.AssemblyQualifiedName);
         }
 
-        public void UnsubscribeFrom<TMessage>()
+        public void UnsubscribeFrom(Type messageType)
         {
-            _socket.Unsubscribe(typeof(TMessage).AssemblyQualifiedName);
+            _socket.Unsubscribe(messageType.AssemblyQualifiedName);
         }
 
         public void Start(int bindPort, PeerIdentity peer)

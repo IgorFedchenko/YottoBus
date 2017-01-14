@@ -19,13 +19,31 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
     {
         class SubscriberFor<TMessage> : IMessageHandler<TMessage>
         {
-            public TMessage ReceivedMessage { get; private set; }
-            public PeerIdentity MessageSender { get; private set; }
+            public List<TMessage> ReceivedMessages { get; } = new List<TMessage>();
+            public List<PeerIdentity> MessageSenders { get; } = new List<PeerIdentity>();
 
             public void Handle(TMessage @event, PeerIdentity sender)
             {
-                ReceivedMessage = @event;
-                MessageSender = sender;
+                ReceivedMessages.Add(@event);
+                MessageSenders.Add(sender);
+            }
+        }
+
+        class SubscriberForStringAndInt: IMessageHandler<string>, IMessageHandler<int>
+        {
+            public List<object> ReceivedMessages { get; } = new List<object>();
+            public List<PeerIdentity> MessageSenders { get; } = new List<PeerIdentity>();
+
+            public void Handle(string @event, PeerIdentity sender)
+            {
+                ReceivedMessages.Add(@event);
+                MessageSenders.Add(sender);
+            }
+
+            public void Handle(int @event, PeerIdentity sender)
+            {
+                ReceivedMessages.Add(@event);
+                MessageSenders.Add(sender);
             }
         }
 
@@ -48,8 +66,8 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
 
                 AwaitAssert(TimeSpan.FromSeconds(5), () =>
                 {
-                    Assert.AreEqual(message, subscriber.ReceivedMessage);
-                    Assert.AreEqual(peer1.Identity, subscriber.MessageSender);
+                    CollectionAssert.Contains(subscriber.ReceivedMessages, message);
+                    CollectionAssert.Contains(subscriber.MessageSenders, peer1.Identity);
                 });
             }
         }
@@ -76,21 +94,43 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
 
                 AwaitAssert(TimeSpan.FromSeconds(10), () =>
                 {
-                    Assert.True(subscriberForConnected.ReceivedMessage != null && subscriberForConnected.ReceivedMessage.Identity.Equals(peer2.Identity));
+                    Assert.True(subscriberForConnected.ReceivedMessages.Any(m => m.Identity.Equals(peer2.Identity)));
                 });
 
                 peer2.Disconnect();
 
                 AwaitAssert(TimeSpan.FromSeconds(10), () =>
                 {
-                    Assert.True(subscriberForDisconnected.ReceivedMessage != null && subscriberForDisconnected.ReceivedMessage.Identity.Equals(peer2.Identity));
+                    Assert.True(subscriberForDisconnected.ReceivedMessages.Any(m => m.Identity.Equals(peer2.Identity)));
                 });
             }
         }
 
+        [Test]
         public void MultipleSubscriptionsTest()
         {
-            
+            var bus = YottoBusFactory.Create();
+
+            using (var peer1 = bus.CreatePeer(new PeerConfiguration()))
+            {
+                peer1.Connect();
+
+                var subscriber = new SubscriberForStringAndInt();
+                peer1.Subscribe(subscriber);
+
+                Thread.Sleep(50);
+
+                var stringMessage = "Hello";
+                var intMessage = 5;
+                peer1.Publish(stringMessage);
+                peer1.Publish(intMessage);
+
+                AwaitAssert(TimeSpan.FromSeconds(5), () =>
+                {
+                    CollectionAssert.Contains(subscriber.ReceivedMessages, stringMessage);
+                    CollectionAssert.Contains(subscriber.ReceivedMessages, intMessage);
+                });
+            }
         }
     }
 }

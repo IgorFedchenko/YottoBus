@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +20,7 @@ namespace Yotto.ServiceBus.Concrete
         private ISubscriber _subscriber;
         private CancellationTokenSource _cancel;
         private PeerIdentity _selfIdentity;
-        private readonly Dictionary<PeerIdentity, Deadline> _peerHeartbeatDeadlines = new Dictionary<PeerIdentity, Deadline>();
+        private readonly ConcurrentDictionary<PeerIdentity, Deadline> _peerHeartbeatDeadlines = new ConcurrentDictionary<PeerIdentity, Deadline>();
 
         public event Action<PeerIdentity> PeerConnected;
         public event Action<PeerIdentity> PeerDisconnected;
@@ -30,7 +31,7 @@ namespace Yotto.ServiceBus.Concrete
             _subscriber = subscriber;
             _selfIdentity = selfIdentity;
 
-            _subscriber.SubscribeTo<Heartbeat>();
+            _subscriber.SubscribeTo(typeof(Heartbeat));
 
             _subscriber.MessageReceived += HandleIfHeartbeat;
 
@@ -63,11 +64,12 @@ namespace Yotto.ServiceBus.Concrete
 
                 foreach (var peerHeartbeatDeadline in _peerHeartbeatDeadlines.Where(peerHeartbeatDeadline => peerHeartbeatDeadline.Value.IsExpired).ToArray())
                 {
-                    _peerHeartbeatDeadlines.Remove(peerHeartbeatDeadline.Key);
+                    Deadline tmp;
+                    _peerHeartbeatDeadlines.TryRemove(peerHeartbeatDeadline.Key, out tmp);
 
                     foreach (var handler in PeerDisconnected?.GetInvocationList().ToArray() ?? new Delegate[0])
                     {
-                        ((Action<PeerIdentity>)handler)?.BeginInvoke(peerHeartbeatDeadline.Key, null, null);
+                        ((Action<PeerIdentity>)handler)?.Invoke(peerHeartbeatDeadline.Key);
                     }
                 }
             }
@@ -78,19 +80,19 @@ namespace Yotto.ServiceBus.Concrete
             var heartbeat = msg.Content as Heartbeat;
             if (heartbeat != null)
             {
-                if (!_peerHeartbeatDeadlines.ContainsKey(heartbeat.Identity))
-                {
-                    _peerHeartbeatDeadlines.Add(heartbeat.Identity, new Deadline(TimeSpan.FromMilliseconds(HeatbeatDeadline)));
-
-                    foreach (var handler in PeerConnected?.GetInvocationList().ToArray() ?? new Delegate[0])
+                _peerHeartbeatDeadlines.AddOrUpdate(heartbeat.Identity,
+                    identity =>
                     {
-                        ((Action<PeerIdentity>) handler)?.BeginInvoke(heartbeat.Identity, null, null);
-                    }
-                }
-                else
-                {
-                    _peerHeartbeatDeadlines[heartbeat.Identity] = new Deadline(TimeSpan.FromMilliseconds(HeatbeatDeadline));
-                }
+                        var deadline = new Deadline(TimeSpan.FromMilliseconds(HeatbeatDeadline));
+
+                        foreach (var handler in PeerConnected?.GetInvocationList().ToArray() ?? new Delegate[0])
+                        {
+                            ((Action<PeerIdentity>)handler)?.Invoke(heartbeat.Identity);
+                        }
+
+                        return deadline;
+                    },
+                    (identity, deadline) => new Deadline(TimeSpan.FromMilliseconds(HeatbeatDeadline)));
             }
         }
     }

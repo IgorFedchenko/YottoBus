@@ -13,8 +13,8 @@ namespace Yotto.ServiceBus.Abstract
         PeerIdentity Identity { get; }
         PeerIdentity[] GetConnectedPeers();
 
-        void Subscribe<TEvent>(IMessageHandler<TEvent> handler);
-        void Unsubscribe<TEvent>(IMessageHandler<TEvent> handler);
+        void Subscribe(IMessageHandler handler);
+        void Unsubscribe(IMessageHandler handler);
 
         void Publish(object @event);
 

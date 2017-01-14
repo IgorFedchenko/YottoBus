@@ -14,9 +14,9 @@ namespace Yotto.ServiceBus.Abstract
     {
         event Action<Message> MessageReceived; 
 
-        void SubscribeTo<TMessage>();
+        void SubscribeTo(Type messageType);
 
-        void UnsubscribeFrom<TMessage>();
+        void UnsubscribeFrom(Type messageType);
 
         void Start(int bindPort, PeerIdentity peer);
         void Start(IPEndPoint publisher, PeerIdentity peer);

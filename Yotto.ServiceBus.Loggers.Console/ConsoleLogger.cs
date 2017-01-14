@@ -6,7 +6,7 @@ namespace Yotto.ServiceBus.Loggers.Console
 {
     public class ConsoleLogger : IBusLogger
     {
-        public LogLevel LogLevel { get; private set; }
+        public LogLevel LogLevel { get; private set; } = LogLevel.Debug;
 
         public void SetLogLevel(LogLevel logLevel)
         {
@@ -15,27 +15,42 @@ namespace Yotto.ServiceBus.Loggers.Console
 
         public void Trace(string message)
         {
-            System.Console.WriteLine(">>> Trace: " + message);
+            if (!LoggingEnabledFor(LogLevel.Trace))
+                return;
+
+            System.Console.WriteLine($">>> [{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")}] Trace: " + message);
         }
 
         public void Debug(string message)
         {
-            System.Console.WriteLine(">>> Debug: " + message);
+            if (!LoggingEnabledFor(LogLevel.Debug))
+                return;
+
+            System.Console.WriteLine($">>> [{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")}] Debug: " + message);
         }
 
         public void Info(string message)
         {
-            System.Console.WriteLine(">>> Info: " + message);
+            if (!LoggingEnabledFor(LogLevel.Info))
+                return;
+
+            System.Console.WriteLine($">>> [{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")}] Info: " + message);
         }
 
         public void Warning(string message)
         {
-            System.Console.WriteLine(">>> Warning: " + message);
+            if (!LoggingEnabledFor(LogLevel.Warning))
+                return;
+
+            System.Console.WriteLine($">>> [{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")}] Warning: " + message);
         }
 
         public void Error(string message, Exception ex = null)
         {
-            System.Console.WriteLine(">>> Error: " + message + "\nException: " + ex);
+            if (!LoggingEnabledFor(LogLevel.Error))
+                return;
+
+            System.Console.WriteLine($">>> [{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")}] Error: " + message + "\nException: " + ex);
         }
 
         public void Log(LogLevel level, string message)
@@ -60,6 +75,11 @@ namespace Yotto.ServiceBus.Loggers.Console
                 default:
                     throw new ArgumentOutOfRangeException(nameof(level), level, null);
             }
+        }
+
+        private bool LoggingEnabledFor(LogLevel logLevel)
+        {
+            return (int) LogLevel >= (int) logLevel;
         }
     }
 }
