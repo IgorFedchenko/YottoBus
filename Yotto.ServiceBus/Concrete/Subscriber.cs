@@ -55,6 +55,8 @@ namespace Yotto.ServiceBus.Concrete
                 _socket.Connect(endpoint);
             }
 
+            _socket.Subscribe(peer.Id.ToString());
+
             StartReceivingMessages();
         }
 
