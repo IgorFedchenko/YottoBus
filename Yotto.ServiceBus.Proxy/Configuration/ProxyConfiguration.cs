@@ -11,6 +11,6 @@ namespace Yotto.ServiceBus.Proxy.Configuration
         public int PortForSubscribers { get; set; }
         public int PortForPublishers { get; set; }
         public int BusPublisherPort { get; set; }
-        public List<string> DiscoveryAddressPatterns { get; set; }
+        public List<string> DiscoveryEndpointPatterns { get; set; }
     }
 }

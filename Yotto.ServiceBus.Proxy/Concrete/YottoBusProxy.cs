@@ -15,7 +15,7 @@ namespace Yotto.ServiceBus.Proxy.Concrete
     {
         public void Start(ProxyConfiguration configuration)
         {
-            var endpointPatterns = configuration.DiscoveryAddressPatterns.Select(pattern => pattern + ":" + configuration.BusPublisherPort);
+            var endpointPatterns = configuration.DiscoveryEndpointPatterns;
             var discoveryEndpoints = endpointPatterns.Select(EndpointsRangeParser.Parse).Aggregate((endpoints1, endpoints2) => endpoints1.Concat(endpoints2).ToList()).ToList();
             StartExternalToLocalTransfer(configuration.PortForSubscribers, discoveryEndpoints);
             StartLocalToExternalTransfer(configuration.PortForPublishers, configuration.BusPublisherPort);
