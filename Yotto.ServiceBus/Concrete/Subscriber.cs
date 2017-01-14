@@ -76,10 +76,7 @@ namespace Yotto.ServiceBus.Concrete
                         var topic = _socket.ReceiveFrameString();
                         var messageString = _socket.ReceiveFrameString();
 
-                        var message = JsonConvert.DeserializeObject<Message>(messageString, new JsonSerializerSettings()
-                        {
-                            TypeNameHandling = TypeNameHandling.Auto
-                        });
+                        var message = Message.Parse(messageString);
 
                         foreach (var @delegate in MessageReceived?.GetInvocationList().ToArray() ?? new Delegate[0])
                         {

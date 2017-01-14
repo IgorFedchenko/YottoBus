@@ -20,5 +20,13 @@ namespace Yotto.ServiceBus.Model.Messages
                 TypeNameHandling = TypeNameHandling.Auto
             });
         }
+
+        public static Message Parse(string messageString)
+        {
+            return JsonConvert.DeserializeObject<Message>(messageString, new JsonSerializerSettings()
+            {
+                TypeNameHandling = TypeNameHandling.Auto
+            });
+        }
     }
 }
