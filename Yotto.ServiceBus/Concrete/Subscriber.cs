@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -74,7 +75,7 @@ namespace Yotto.ServiceBus.Concrete
                     {
                         var topic = _socket.ReceiveFrameString();
                         var messageString = _socket.ReceiveFrameString();
-                   
+
                         var message = JsonConvert.DeserializeObject<Message>(messageString, new JsonSerializerSettings()
                         {
                             TypeNameHandling = TypeNameHandling.Auto
@@ -84,6 +85,10 @@ namespace Yotto.ServiceBus.Concrete
                         {
                             ((Action<Message>) @delegate)?.BeginInvoke(message, null, null);
                         }
+                    }
+                    catch (Exception ex) when (ex is ObjectDisposedException || ex is SocketException)
+                    {
+                        // Ignore this one: _socket may be closed while waiting the message and this is fine
                     }
                     catch (Exception ex)
                     {
