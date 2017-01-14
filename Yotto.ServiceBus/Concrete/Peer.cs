@@ -148,6 +148,13 @@ namespace Yotto.ServiceBus.Concrete
         {
             try
             {
+                bool messageIsBigInt = message is long && (long)message > int.MaxValue;
+                if (message is long && !messageIsBigInt)
+                {
+                    HandleReceivedMessage(peer, Convert.ToInt32(message));
+                    return;
+                }
+
                 var eventType = message.GetType();
                 if (_handlers.ContainsKey(eventType))
                 {
