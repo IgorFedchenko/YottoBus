@@ -25,6 +25,7 @@ namespace Yotto.ServiceBus.Tests
                 catch (Exception ex)
                 {
                     errorMessage = ex.ToString();
+                    Task.Delay(50).Wait();
                 }
             }
 
