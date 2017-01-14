@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 namespace Yotto.ServiceBus.Tests
 {
-    class TestsBase
+    public class TestsBase
     {
         protected void AwaitAssert(TimeSpan awaitTime, Action expression)
         {

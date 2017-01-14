@@ -16,7 +16,7 @@ namespace Yotto.ServiceBus.Concrete
         private readonly ISubscriber _subscriber;
         private readonly IPublisher _publisher;
         private readonly IConnectionTracker _connectionTracker;
-        private readonly Dictionary<Type, HashSet<IEventHandler>> _handlers = new Dictionary<Type, HashSet<IEventHandler>>();
+        private readonly Dictionary<Type, HashSet<IMessageHandler>> _handlers = new Dictionary<Type, HashSet<IMessageHandler>>();
         private readonly HashSet<PeerIdentity> _peers = new HashSet<PeerIdentity>();
 
         public Peer(PeerConfiguration configuration, IServiceBus bus, IPublisher publisher, ISubscriber subscriber, IConnectionTracker connectionTracker)
@@ -65,23 +65,34 @@ namespace Yotto.ServiceBus.Concrete
             return _peers.ToArray();
         }
 
-        public void Subscribe<TEvent>(IEventHandler<TEvent> handler)
+        public void Subscribe<TEvent>(IMessageHandler<TEvent> handler)
         {
             var eventType = typeof(TEvent);
             if (!_handlers.ContainsKey(eventType))
-                _handlers[eventType] = new HashSet<IEventHandler>();
+                _handlers[eventType] = new HashSet<IMessageHandler>();
 
             _handlers[eventType].Add(handler);
+
+            _subscriber.SubscribeTo<TEvent>();
 
             Log(LogLevel.Trace, $"Peer {Identity.Id} subscribed to {eventType}");
         }
 
-        public void Unsubscribe<TEvent>(IEventHandler<TEvent> handler)
+        public void Unsubscribe<TEvent>(IMessageHandler<TEvent> handler)
         {
             var eventType = typeof(TEvent);
             if (_handlers.ContainsKey(eventType))
             {
                 _handlers[eventType].Remove(handler);
+                if (!_handlers[eventType].Any())
+                {
+                    _handlers.Remove(eventType);
+                }
+            }
+
+            if (!_handlers.ContainsKey(eventType))
+            {
+                _subscriber.UnsubscribeFrom<TEvent>();
             }
 
             Log(LogLevel.Trace, $"Peer {Identity.Id} unsubscribed from {eventType}");
@@ -129,16 +140,15 @@ namespace Yotto.ServiceBus.Concrete
                     {
                         Type[] handlingTypes = handler.GetType().GetInterfaces()
                             .Where(
-                                inf => inf.IsGenericType && inf.GetGenericTypeDefinition() == typeof (IEventHandler<>))
+                                inf => inf.IsGenericType && inf.GetGenericTypeDefinition() == typeof (IMessageHandler<>))
                             .Select(inf => inf.GetGenericArguments().First())
                             .ToArray();
 
                         if (handlingTypes.Any(t => t == eventType || eventType.IsSubclassOf(t)))
                         {
                             // If handling this type of messages
-                            handler.GetType()
-                                .GetMethod(nameof(IEventHandler<object>.Handle), new Type[] {eventType})
-                                .Invoke(handler, new object[] {message, peer});
+                            var method = handler.GetType().GetMethod(nameof(IMessageHandler<object>.Handle), new Type[] {eventType, typeof(PeerIdentity)});
+                            method.Invoke(handler, new object[] {message, peer});
                         }
                     }
                 }

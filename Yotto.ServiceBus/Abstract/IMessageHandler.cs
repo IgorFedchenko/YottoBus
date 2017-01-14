@@ -7,10 +7,10 @@ using Yotto.ServiceBus.Model;
 
 namespace Yotto.ServiceBus.Abstract
 {
-    public interface IEventHandler { }
+    public interface IMessageHandler { }
 
-    public interface IEventHandler<in TEvent> : IEventHandler
+    public interface IMessageHandler<in TMessage> : IMessageHandler
     {
-        void Handle(TEvent @event, PeerIdentity sender);
+        void Handle(TMessage @event, PeerIdentity sender);
     }
 }

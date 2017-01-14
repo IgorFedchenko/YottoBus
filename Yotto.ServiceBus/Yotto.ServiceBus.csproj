@@ -62,7 +62,7 @@
   <ItemGroup>
     <Compile Include="Abstract\IBusLogger.cs" />
     <Compile Include="Abstract\IConnectionTracker.cs" />
-    <Compile Include="Abstract\IEventHandler.cs" />
+    <Compile Include="Abstract\IMessageHandler.cs" />
     <Compile Include="Abstract\IPeer.cs" />
     <Compile Include="Abstract\IPublisher.cs" />
     <Compile Include="Abstract\IServiceBus.cs" />

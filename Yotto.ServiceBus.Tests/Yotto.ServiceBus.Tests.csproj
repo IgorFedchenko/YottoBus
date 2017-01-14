@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EndpointRangeParserTests.cs" />
+    <Compile Include="IntegrationTests\PeerCommunicationTests.cs" />
     <Compile Include="IntegrationTests\ServiceBusDiscoveryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestsBase.cs" />
