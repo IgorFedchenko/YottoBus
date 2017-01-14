@@ -78,6 +78,8 @@
     <Compile Include="Model\Messages\Heartbeat.cs" />
     <Compile Include="Model\LogLevel.cs" />
     <Compile Include="Model\Messages\Message.cs" />
+    <Compile Include="Model\Messages\PeerConnected.cs" />
+    <Compile Include="Model\Messages\PeerDisconnected.cs" />
     <Compile Include="Model\PeerIdentity.cs" />
     <Compile Include="Model\PeerMetadata.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

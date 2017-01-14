@@ -82,6 +82,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Yotto.ServiceBus.Loggers.Console\Yotto.ServiceBus.Loggers.Console.csproj">
+      <Project>{18839b60-d889-49cf-b9e0-2f45ad337f30}</Project>
+      <Name>Yotto.ServiceBus.Loggers.Console</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Yotto.ServiceBus.Proxy\Yotto.ServiceBus.Proxy.csproj">
       <Project>{e73b3fd1-3eef-4842-9ce1-cbfc70c832ae}</Project>
       <Name>Yotto.ServiceBus.Proxy</Name>

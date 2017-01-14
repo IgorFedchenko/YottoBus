@@ -8,7 +8,9 @@ using NUnit.Framework;
 using Yotto.ServiceBus.Abstract;
 using Yotto.ServiceBus.Concrete;
 using Yotto.ServiceBus.Configuration;
+using Yotto.ServiceBus.Loggers.Console;
 using Yotto.ServiceBus.Model;
+using Yotto.ServiceBus.Model.Messages;
 
 namespace Yotto.ServiceBus.Tests.IntegrationTests
 {
@@ -48,6 +50,40 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
                 {
                     Assert.AreEqual(message, subscriber.ReceivedMessage);
                     Assert.AreEqual(peer1.Identity, subscriber.MessageSender);
+                });
+            }
+        }
+
+        [Test]
+        public void SubscribeToPeerConnectedOrDisconnectedTest()
+        {
+            var bus = YottoBusFactory.Create();
+            bus.Loggers.Add(new ConsoleLogger());
+
+            using (var peer1 = bus.CreatePeer(new PeerConfiguration()))
+            using (var peer2 = bus.CreatePeer(new PeerConfiguration()))
+            {
+                peer1.Connect();
+
+                var subscriberForConnected = new SubscriberFor<PeerConnected>();
+                var subscriberForDisconnected = new SubscriberFor<PeerDisconnected>();
+                peer1.Subscribe(subscriberForConnected);
+                peer1.Subscribe(subscriberForDisconnected);
+
+                Thread.Sleep(50);
+
+                peer2.Connect();
+
+                AwaitAssert(TimeSpan.FromSeconds(10), () =>
+                {
+                    Assert.True(subscriberForConnected.ReceivedMessage != null && subscriberForConnected.ReceivedMessage.Identity.Equals(peer2.Identity));
+                });
+
+                peer2.Disconnect();
+
+                AwaitAssert(TimeSpan.FromSeconds(10), () =>
+                {
+                    Assert.True(subscriberForDisconnected.ReceivedMessage != null && subscriberForDisconnected.ReceivedMessage.Identity.Equals(peer2.Identity));
                 });
             }
         }

@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Yotto.ServiceBus.Abstract;
 using Yotto.ServiceBus.Configuration;
 using Yotto.ServiceBus.Model;
+using Yotto.ServiceBus.Model.Messages;
 
 namespace Yotto.ServiceBus.Concrete
 {
@@ -56,7 +57,7 @@ namespace Yotto.ServiceBus.Concrete
 
                 IsConnected = true;
 
-                Log(LogLevel.Debug, $"Peer {Identity.Id} connected to bus via proxy on {proxyPortForPublishersPort}/{proxyPortForSubscribers} ports");
+                Log(LogLevel.Debug, $"Peer {Identity.Id} initiated connection to bus via proxy on {proxyPortForPublishersPort}/{proxyPortForSubscribers} ports");
             }
         }
 
@@ -164,6 +165,8 @@ namespace Yotto.ServiceBus.Concrete
             _peers.Add(peer);
 
             Log(LogLevel.Trace, $"Connected peer {peer.Id}");
+
+            HandleReceivedMessage(Identity, new PeerConnected(peer));
         }
 
         private void HandlePeerDisconnected(PeerIdentity peer)
@@ -171,6 +174,8 @@ namespace Yotto.ServiceBus.Concrete
             _peers.Remove(peer);
 
             Log(LogLevel.Trace, $"Disconnected peer {peer.Id}");
+
+            HandleReceivedMessage(Identity, new PeerDisconnected(peer));
         }
 
         private void Log(LogLevel level, string message)
