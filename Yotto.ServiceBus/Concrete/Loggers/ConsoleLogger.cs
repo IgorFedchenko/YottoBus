@@ -2,7 +2,7 @@
 using Yotto.ServiceBus.Abstract;
 using Yotto.ServiceBus.Model;
 
-namespace Yotto.ServiceBus.Loggers.Console
+namespace Yotto.ServiceBus.Concrete.Loggers
 {
     public class ConsoleLogger : IBusLogger
     {
