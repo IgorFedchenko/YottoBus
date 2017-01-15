@@ -158,6 +158,8 @@ namespace Yotto.ServiceBus.Concrete
                 var eventType = message.GetType();
                 if (_handlers.ContainsKey(eventType))
                 {
+                    List<IMessageHandler> handlers = new List<IMessageHandler>();
+
                     foreach (var handler in _handlers[eventType])
                     {
                         Type[] handlingTypes = handler.GetType().GetInterfaces()
@@ -169,10 +171,11 @@ namespace Yotto.ServiceBus.Concrete
                         if (handlingTypes.Any(t => t == eventType || eventType.IsSubclassOf(t)))
                         {
                             // If handling this type of messages
-                            var method = handler.GetType().GetMethod(nameof(IMessageHandler<object>.Handle), new Type[] {eventType, typeof(PeerIdentity)});
-                            method.Invoke(handler, new object[] {message, peer});
+                            handlers.Add(handler);
                         }
                     }
+
+                     _bus.DeliveryStrategy.DeliverMessage(message, peer, handlers);
                 }
             }
             catch (Exception ex)

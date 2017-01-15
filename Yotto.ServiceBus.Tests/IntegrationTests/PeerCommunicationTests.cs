@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using Yotto.ServiceBus.Abstract;
 using Yotto.ServiceBus.Concrete;
+using Yotto.ServiceBus.Concrete.Loggers;
 using Yotto.ServiceBus.Configuration;
-using Yotto.ServiceBus.Loggers.Console;
 using Yotto.ServiceBus.Model;
 using Yotto.ServiceBus.Model.Messages;
 

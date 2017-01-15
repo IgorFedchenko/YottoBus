@@ -11,6 +11,9 @@ namespace Yotto.ServiceBus.Abstract
     {
         List<IBusLogger> Loggers { get; }
 
+        IDeliveryStrategy DeliveryStrategy { get; set; }
+
         IPeer CreatePeer(PeerConfiguration configuration);
+
     }
 }

@@ -60,14 +60,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstract\DeliveryStrategyBase.cs" />
     <Compile Include="Abstract\IBusLogger.cs" />
     <Compile Include="Abstract\IConnectionTracker.cs" />
+    <Compile Include="Abstract\IDeliveryStrategy.cs" />
     <Compile Include="Abstract\IMessageHandler.cs" />
     <Compile Include="Abstract\IPeer.cs" />
     <Compile Include="Abstract\IPublisher.cs" />
     <Compile Include="Abstract\IServiceBus.cs" />
     <Compile Include="Abstract\ISubscriber.cs" />
     <Compile Include="Concrete\ConnectionTracker.cs" />
+    <Compile Include="Concrete\DeliveryStrategies\SequentialDeliveryStrategy.cs" />
+    <Compile Include="Concrete\Loggers\ConsoleLogger.cs" />
     <Compile Include="Concrete\Peer.cs" />
     <Compile Include="Concrete\Publisher.cs" />
     <Compile Include="Concrete\Subscriber.cs" />

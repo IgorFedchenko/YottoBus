@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Ninject;
 using Yotto.ServiceBus.Abstract;
+using Yotto.ServiceBus.Configuration;
 
 namespace Yotto.ServiceBus.Concrete
 {
