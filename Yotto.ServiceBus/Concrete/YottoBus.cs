@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Ninject;
 using Ninject.Activation;
 using Yotto.ServiceBus.Abstract;
+using Yotto.ServiceBus.Concrete.Loggers;
 using Yotto.ServiceBus.Configuration;
 using Yotto.ServiceBus.Model;
 
@@ -21,7 +22,10 @@ namespace Yotto.ServiceBus.Concrete
             _container = container;
         }
 
-        public List<IBusLogger> Loggers { get; } = new List<IBusLogger>();
+        public List<IBusLogger> Loggers { get; } = new List<IBusLogger>()
+        {
+            new ConsoleLogger()
+        };
 
         public IPeer CreatePeer(PeerConfiguration configuration)
         {
