@@ -11,14 +11,28 @@ using Yotto.ServiceBus.Proxy.Helpers;
 
 namespace Yotto.ServiceBus.Proxy.Concrete
 {
-    public class YottoBusProxy
+    public class YottoBusProxy : IDisposable
     {
+        private NetMQ.Proxy _externalToLocalProxy;
+        private NetMQ.Proxy _localToExternalProxy;
+
         public void Start(ProxyConfiguration configuration)
         {
             var endpointPatterns = configuration.DiscoveryEndpointPatterns;
             var discoveryEndpoints = endpointPatterns.Select(EndpointsRangeParser.Parse).Aggregate((endpoints1, endpoints2) => endpoints1.Concat(endpoints2).ToList()).ToList();
             StartExternalToLocalTransfer(configuration.PortForSubscribers, discoveryEndpoints);
             StartLocalToExternalTransfer(configuration.PortForPublishers, configuration.BusPublisherPort);
+        }
+
+        public void Stop()
+        {
+            _localToExternalProxy?.Stop();
+            _externalToLocalProxy?.Stop();
+        }
+
+        public void Dispose()
+        {
+            Stop();
         }
 
         private void StartExternalToLocalTransfer(int portForSubscribers, List<IPEndPoint> discoveryEndpoints)
@@ -33,9 +47,9 @@ namespace Yotto.ServiceBus.Proxy.Concrete
                     var dynamicSubscriber = new DynamicSubscriber(xsubSocket, discoveryEndpoints);
                     dynamicSubscriber.StartDiscovering();
 
-                    var proxy = new NetMQ.Proxy(xpubSocket, xsubSocket);
+                    _externalToLocalProxy = new NetMQ.Proxy(xpubSocket, xsubSocket);
 
-                    proxy.Start();
+                    _externalToLocalProxy.Start();
                 }
             });
         }
@@ -52,9 +66,9 @@ namespace Yotto.ServiceBus.Proxy.Concrete
 
                     pubSocket.Bind($"tcp://localhost:{busPublisherPort}");
 
-                    var proxy = new NetMQ.Proxy(subSocket, pubSocket);
+                    _localToExternalProxy = new NetMQ.Proxy(subSocket, pubSocket);
 
-                    proxy.Start();
+                    _localToExternalProxy.Start();
                 }
             });
         }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Yotto.ServiceBus.Proxy.Concrete;
 using Yotto.ServiceBus.Proxy.Configuration;
 
-namespace Yotto.ServiceBus.Proxy
+namespace Yotto.ServiceBus.ProxyService
 {
     class Program
     {
@@ -23,12 +23,11 @@ namespace Yotto.ServiceBus.Proxy
                 PortForSubscribers = 19877
             };
 
-            var proxy = new YottoBusProxy();
-            proxy.Start(proxyConfiguration);
-
-            while (true)
+            using (var proxy = new YottoBusProxy())
             {
-                
+                proxy.Start(proxyConfiguration);
+
+                Console.ReadLine();
             }
         }
     }
