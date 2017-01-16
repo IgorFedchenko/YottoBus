@@ -14,6 +14,5 @@ namespace Yotto.ServiceBus.Abstract
         IDeliveryStrategy DeliveryStrategy { get; set; }
 
         IPeer CreatePeer(PeerConfiguration configuration);
-
     }
 }
