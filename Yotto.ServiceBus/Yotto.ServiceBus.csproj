@@ -70,6 +70,7 @@
     <Compile Include="Abstract\IServiceBus.cs" />
     <Compile Include="Abstract\ISubscriber.cs" />
     <Compile Include="Concrete\ConnectionTracker.cs" />
+    <Compile Include="Concrete\DeliveryStrategies\ActorDeliveryStrategy.cs" />
     <Compile Include="Concrete\DeliveryStrategies\ParallelDeliveryStrategy.cs" />
     <Compile Include="Concrete\DeliveryStrategies\SequentialDeliveryStrategy.cs" />
     <Compile Include="Concrete\Loggers\ConsoleLogger.cs" />

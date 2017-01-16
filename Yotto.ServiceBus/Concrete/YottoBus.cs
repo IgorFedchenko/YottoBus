@@ -29,6 +29,7 @@ namespace Yotto.ServiceBus.Concrete
             };
             DeliveryStrategy = new SequentialDeliveryStrategy(Loggers);
             // DeliveryStrategy = new ParallelDeliveryStrategy(Loggers);
+            // DeliveryStrategy = new ActorDeliveryStrategy(Loggers);
         }
 
         public IDeliveryStrategy DeliveryStrategy
