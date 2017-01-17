@@ -11,6 +11,7 @@ using Yotto.ServiceBus.Concrete.Loggers;
 using Yotto.ServiceBus.Configuration;
 using Yotto.ServiceBus.Model;
 using Yotto.ServiceBus.Model.Messages;
+using Yotto.ServiceBus.Extensions;
 
 namespace Yotto.ServiceBus.Tests.IntegrationTests
 {
@@ -19,7 +20,7 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
     {
         class SubscriberFor<TMessage> : IMessageHandler<TMessage>
         {
-            public List<TMessage> ReceivedMessages { get; } = new List<TMessage>();
+            public List<object> ReceivedMessages { get; } = new List<object>();
             public List<PeerIdentity> MessageSenders { get; } = new List<PeerIdentity>();
 
             public void Handle(TMessage @event, PeerIdentity sender)
@@ -29,17 +30,8 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
             }
         }
 
-        class SubscriberForStringAndInt: IMessageHandler<string>, IMessageHandler<int>
+        class SubscriberForStringAndInt: SubscriberFor<string>, IMessageHandler<int>
         {
-            public List<object> ReceivedMessages { get; } = new List<object>();
-            public List<PeerIdentity> MessageSenders { get; } = new List<PeerIdentity>();
-
-            public void Handle(string @event, PeerIdentity sender)
-            {
-                ReceivedMessages.Add(@event);
-                MessageSenders.Add(sender);
-            }
-
             public void Handle(int @event, PeerIdentity sender)
             {
                 ReceivedMessages.Add(@event);
@@ -52,7 +44,7 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
         {
             var bus = YottoBusFactory.Create();
 
-            using (var peer1 = bus.CreatePeer(new PeerConfiguration()))
+            using (var peer1 = bus.CreatePeer())
             {
                 peer1.Connect();
 
@@ -78,8 +70,8 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
             var bus = YottoBusFactory.Create();
             bus.Loggers.Add(new ConsoleLogger());
 
-            using (var peer1 = bus.CreatePeer(new PeerConfiguration()))
-            using (var peer2 = bus.CreatePeer(new PeerConfiguration()))
+            using (var peer1 = bus.CreatePeer())
+            using (var peer2 = bus.CreatePeer())
             {
                 peer1.Connect();
 
@@ -94,14 +86,14 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
 
                 AwaitAssert(TimeSpan.FromSeconds(10), () =>
                 {
-                    Assert.True(subscriberForConnected.ReceivedMessages.Any(m => m.Identity.Equals(peer2.Identity)));
+                    Assert.True(subscriberForConnected.ReceivedMessages.Any(m => m is PeerConnected && ((PeerConnected)m).Identity.Equals(peer2.Identity)));
                 });
 
                 peer2.Disconnect();
 
                 AwaitAssert(TimeSpan.FromSeconds(10), () =>
                 {
-                    Assert.True(subscriberForDisconnected.ReceivedMessages.Any(m => m.Identity.Equals(peer2.Identity)));
+                    Assert.True(subscriberForDisconnected.ReceivedMessages.Any(m => m is PeerDisconnected && ((PeerDisconnected)m).Identity.Equals(peer2.Identity)));
                 });
             }
         }

@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using NUnit.Framework.Internal;
 using NUnit.Framework;
 using Yotto.ServiceBus.Concrete;
 using Yotto.ServiceBus.Configuration;
 using Yotto.ServiceBus.Model;
+using Yotto.ServiceBus.Extensions;
 
 namespace Yotto.ServiceBus.Tests.IntegrationTests
 {
@@ -53,11 +49,18 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
         }
 
         [Test]
-        public void ShouldDiscoverWithInnerData()
+        public void ShouldDiscoverWithMetadata()
         {
             var bus = YottoBusFactory.Create();
 
-            using (var peer1= bus.CreatePeer(new PeerConfiguration() { Metadata = new PeerMetadata(new Dictionary<string, string>() { ["key"] = "value" }) }))
+            var conf = new PeerConfiguration()
+            {
+                Metadata = new PeerMetadata(new Dictionary<string, string>()
+                {
+                    ["key"] = "value"
+                })
+            };
+            using (var peer1= bus.CreatePeer(conf))
             {
                 peer1.Connect();
 
@@ -75,8 +78,8 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
         {
             var bus = YottoBusFactory.Create();
 
-            using (var peer1 = bus.CreatePeer(new PeerConfiguration()))
-            using (var peer2 = bus.CreatePeer(new PeerConfiguration()))
+            using (var peer1 = bus.CreatePeer())
+            using (var peer2 = bus.CreatePeer())
             {
                 peer1.Connect();
                 peer2.Connect();
@@ -101,13 +104,16 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
             }
         }
 
+        /// <summary>
+        /// This test is running in debug mode so that we can examine consumed memory with VisualStudio tools
+        /// </summary>
         // [Test]
         public void MemoryConsumptionTest()
         {
             var bus = YottoBusFactory.Create();
 
-            using (var peer1 = bus.CreatePeer(new PeerConfiguration()))
-            using (var peer2 = bus.CreatePeer(new PeerConfiguration()))
+            using (var peer1 = bus.CreatePeer())
+            using (var peer2 = bus.CreatePeer())
             {
                 peer1.Connect();
                 peer2.Connect();
