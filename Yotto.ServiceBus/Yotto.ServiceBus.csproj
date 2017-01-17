@@ -80,6 +80,7 @@
     <Compile Include="Concrete\YottoBus.cs" />
     <Compile Include="Concrete\YottoBusFactory.cs" />
     <Compile Include="Configuration\PeerConfiguration.cs" />
+    <Compile Include="Extensions\Extensions.cs" />
     <Compile Include="Helpers\Deadline.cs" />
     <Compile Include="Model\Messages\Heartbeat.cs" />
     <Compile Include="Model\LogLevel.cs" />
