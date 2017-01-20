@@ -7,17 +7,34 @@ using Yotto.ServiceBus.Model;
 
 namespace Yotto.ServiceBus.Abstract
 {
+    /// <summary>
+    /// This is a basis for all DeliveryStrategies you may want to implement. 
+    /// Usually you will inherit from this class and implement some strategy, 
+    /// calling HandleMessage <see cref="HandleMessage"/> to invoke handler method synchronously.
+    /// </summary>
     public abstract class DeliveryStrategyBase : IDeliveryStrategy
     {
         private readonly IEnumerable<IBusLogger> _loggers;
 
-        protected DeliveryStrategyBase(IEnumerable<IBusLogger> loggers)
+        protected DeliveryStrategyBase(IServiceBus bus)
         {
-            _loggers = loggers;
+            _loggers = bus.Loggers;
         }
 
+        /// <summary>
+        /// This method is normally called via IDeliveryStrategy interface <see cref="IDeliveryStrategy"/>
+        /// </summary>
+        /// <param name="message">Message to deliver</param>
+        /// <param name="sender">Sender of this message</param>
+        /// <param name="subscribers">Subscribers to deliver the message</param>
         public abstract void DeliverMessage(object message, PeerIdentity sender, IEnumerable<IMessageHandler> subscribers);
 
+        /// <summary>
+        /// Delivers the message to particular subscriber/handler, calling it's handling method
+        /// </summary>
+        /// <param name="message">Message to handle</param>
+        /// <param name="sender">Sender of the message</param>
+        /// <param name="handler">Handler, who's handler method will be invoked</param>
         protected void HandleMessage(object message, PeerIdentity sender, IMessageHandler handler)
         {
             try

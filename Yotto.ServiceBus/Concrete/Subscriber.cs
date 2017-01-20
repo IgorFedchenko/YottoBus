@@ -16,36 +16,53 @@ using Yotto.ServiceBus.Model.Messages;
 
 namespace Yotto.ServiceBus.Concrete
 {
+    /// <summary>
+    /// Implements subscriber logic
+    /// </summary>
+    /// <seealso cref="Yotto.ServiceBus.Abstract.ISubscriber" />
     class Subscriber : ISubscriber
     {
         private SubscriberSocket _socket;
         private CancellationTokenSource _cancellation;
 
+        /// <summary>
+        /// Occurs when new message received.
+        /// </summary>
         public event Action<Message> MessageReceived;
 
+        /// <summary>
+        /// Add subscrubtion to given message type
+        /// </summary>
+        /// <param name="messageType">Type of the message to subscrube.</param>
         public void SubscribeTo(Type messageType)
         {
             _socket.Subscribe(messageType.AssemblyQualifiedName);
         }
 
+        /// <summary>
+        /// Unsubscribes from specified message type.
+        /// </summary>
+        /// <param name="messageType">Type of the message to unsubscrube.</param>
         public void UnsubscribeFrom(Type messageType)
         {
             _socket.Unsubscribe(messageType.AssemblyQualifiedName);
         }
 
-        public void Start(int bindPort, PeerIdentity peer)
-        {
-            _socket = new SubscriberSocket();
-            _socket.Bind("tcp://localhost:" + bindPort);
-
-            _socket.Subscribe(peer.Id.ToString());
-        }
-
+        /// <summary>
+        /// Starts this instance, connecting it to specified publisher.
+        /// </summary>
+        /// <param name="publisher">The publisher to connect.</param>
+        /// <param name="peer">The self identity.</param>
         public void Start(IPEndPoint publisher, PeerIdentity peer)
         {
             Start(new List<IPEndPoint>() { publisher }, peer);
         }
 
+        /// <summary>
+        /// Starts this instance, connecting it to specified publishers.
+        /// </summary>
+        /// <param name="publishers">The publishers to connect.</param>
+        /// <param name="peer">The self peer identoty.</param>
         public void Start(List<IPEndPoint> publishers, PeerIdentity peer)
         {
             _socket = new SubscriberSocket();
@@ -60,6 +77,9 @@ namespace Yotto.ServiceBus.Concrete
             StartReceivingMessages();
         }
 
+        /// <summary>
+        /// Stops this instance.
+        /// </summary>
         public void Stop()
         {
             _cancellation.Cancel();
@@ -82,7 +102,7 @@ namespace Yotto.ServiceBus.Concrete
 
                         foreach (var @delegate in MessageReceived?.GetInvocationList().ToArray() ?? new Delegate[0])
                         {
-                            ((Action<Message>) @delegate)?.BeginInvoke(message, null, null);
+                            ((Action<Message>) @delegate)?.BeginInvoke(message, null, null); // Do not wait while message will be handled
                         }
                     }
                     catch (Exception ex) when (ex is ObjectDisposedException || ex is SocketException)

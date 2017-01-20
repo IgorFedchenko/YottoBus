@@ -11,11 +11,22 @@ namespace Yotto.ServiceBus.Extensions
 {
     public static class Extensions
     {
+        /// <summary>
+        /// Creates the peer with default configuration.
+        /// </summary>
+        /// <param name="bus">The bus.</param>
+        /// <returns>Created peer</returns>
         public static IPeer CreatePeer(this IServiceBus bus)
         {
             return bus.CreatePeer(new PeerConfiguration());
         }
 
+        /// <summary>
+        /// Creates the peer with it's name in metadata.
+        /// </summary>
+        /// <param name="bus">The bus.</param>
+        /// <param name="peerName">Name of the peer.</param>
+        /// <returns>Created peer</returns>
         public static IPeer CreatePeer(this IServiceBus bus, string peerName)
         {
             return bus.CreatePeer(new PeerConfiguration()
@@ -27,6 +38,13 @@ namespace Yotto.ServiceBus.Extensions
             });
         }
 
+        /// <summary>
+        /// Creates the peer with it's name and other attributes in metadata.
+        /// </summary>
+        /// <param name="bus">The bus.</param>
+        /// <param name="peerName">Name of the peer.</param>
+        /// <param name="attributes">The other attributes.</param>
+        /// <returns>Created peer</returns>
         public static IPeer CreatePeer(this IServiceBus bus, string peerName, Dictionary<string, string> attributes)
         {
             attributes.Remove("name");
@@ -40,6 +58,11 @@ namespace Yotto.ServiceBus.Extensions
             });
         }
 
+        /// <summary>
+        /// Gets the name of the peer from it's metadata. Empty string by default.
+        /// </summary>
+        /// <param name="peer">The peer.</param>
+        /// <returns>Peer's name, if any (or empty string)</returns>
         public static string GetName(this IPeer peer)
         {
             return peer.Identity.Metadata.Get("name") ?? string.Empty;

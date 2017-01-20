@@ -16,6 +16,12 @@ namespace Yotto.ServiceBus.Model.Messages
             Identity = identity;
         }
 
+        /// <summary>
+        /// Identity of disconnected peer.
+        /// </summary>
+        /// <value>
+        /// The identity.
+        /// </value>
         public PeerIdentity Identity { get; }
     }
 }

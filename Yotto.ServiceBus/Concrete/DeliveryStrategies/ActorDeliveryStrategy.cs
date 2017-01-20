@@ -9,15 +9,31 @@ using Yotto.ServiceBus.Model;
 
 namespace Yotto.ServiceBus.Concrete.DeliveryStrategies
 {
+    /// <summary>
+    /// This delivery strategy works like in actor model: 
+    /// messages are delivered for each subscruber asynchronously, 
+    /// but inside each subscruber they are handled synchronously.
+    /// 
+    /// So therefore subscrubers are handling messages in parallel, 
+    /// but each of them has it's message queue to handle messages sequencially.
+    /// </summary>
+    /// <remarks>Unlike in actor model, each message in subscriber may be handled in different thread. 
+    /// All, what is guaranteed, is that next message will not start handling 
+    /// before previose message handling is completed.</remarks>
+    /// <seealso cref="Yotto.ServiceBus.Abstract.DeliveryStrategyBase" />
     public class ActorDeliveryStrategy : DeliveryStrategyBase
     {
-        private readonly ConcurrentDictionary<IMessageHandler, Task> _handlersTasks = new ConcurrentDictionary<IMessageHandler, Task>(); 
+        /// <summary>
+        /// Tasks for each handler
+        /// </summary>
+        private readonly ConcurrentDictionary<IMessageHandler, Task> _handlersTasks = new ConcurrentDictionary<IMessageHandler, Task>();
 
-        public ActorDeliveryStrategy(IEnumerable<IBusLogger> loggers) 
-            : base(loggers)
-        {
-        }
-
+        /// <summary>
+        /// This method is normally called via IDeliveryStrategy interface <see cref="IDeliveryStrategy" />
+        /// </summary>
+        /// <param name="message">Message to deliver</param>
+        /// <param name="sender">Sender of this message</param>
+        /// <param name="subscribers">Subscribers to deliver the message</param>
         public override void DeliverMessage(object message, PeerIdentity sender, IEnumerable<IMessageHandler> subscribers)
         {
             ClearFinishedTasks();
@@ -36,6 +52,9 @@ namespace Yotto.ServiceBus.Concrete.DeliveryStrategies
             }
         }
 
+        /// <summary>
+        /// Clears the finished tasks to exclude memory leaks.
+        /// </summary>
         private void ClearFinishedTasks()
         {
             foreach (var handlerTask in _handlersTasks.Where(handlerTask => handlerTask.Value.IsCompleted).ToArray())
@@ -43,6 +62,15 @@ namespace Yotto.ServiceBus.Concrete.DeliveryStrategies
                 Task tmp;
                 _handlersTasks.TryRemove(handlerTask.Key, out tmp);
             }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ActorDeliveryStrategy"/> class.
+        /// </summary>
+        /// <param name="bus">The bus.</param>
+        public ActorDeliveryStrategy(IServiceBus bus) 
+            : base(bus)
+        {
         }
     }
 }

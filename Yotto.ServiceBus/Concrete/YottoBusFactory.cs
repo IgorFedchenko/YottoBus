@@ -9,6 +9,9 @@ using Yotto.ServiceBus.Configuration;
 
 namespace Yotto.ServiceBus.Concrete
 {
+    /// <summary>
+    /// Factory for creating default configured bus
+    /// </summary>
     public static class YottoBusFactory
     {
         private static IKernel _container;
@@ -18,6 +21,10 @@ namespace Yotto.ServiceBus.Concrete
             RegisterDependencies();
         }
 
+        /// <summary>
+        /// Creates the bus instance.
+        /// </summary>
+        /// <returns></returns>
         public static IServiceBus Create()
         {
             return _container.Get<IServiceBus>();

@@ -8,6 +8,9 @@ using Newtonsoft.Json;
 
 namespace Yotto.ServiceBus.Model
 {
+    /// <summary>
+    /// Identity of the peer
+    /// </summary>
     public class PeerIdentity
     {
         public PeerIdentity() { }
@@ -18,7 +21,20 @@ namespace Yotto.ServiceBus.Model
             Metadata = metadata;
         }
 
+        /// <summary>
+        /// Unique peer Id
+        /// </summary>
+        /// <value>
+        /// The identifier.
+        /// </value>
         public Guid Id { get; set; }
+
+        /// <summary>
+        /// Peer metadata, as set of key-value pairs
+        /// </summary>
+        /// <value>
+        /// The metadata.
+        /// </value>
         public PeerMetadata Metadata { get; set; }
 
         public override bool Equals(object obj)
