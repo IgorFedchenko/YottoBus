@@ -5,8 +5,16 @@ using System.Net;
 
 namespace Yotto.ServiceBus.Proxy.Helpers
 {
+    /// <summary>
+    /// Contains methods for parsing endpoints list from string pattern
+    /// </summary>
     public static class EndpointsRangeParser
     {
+        /// <summary>
+        /// Parses the specified endpoints range from string pattern like 192.168.[0,1,2-7].[0-254]
+        /// </summary>
+        /// <param name="endpointsRange">The endpoints range.</param>
+        /// <returns></returns>
         public static List<IPEndPoint> Parse(string endpointsRange)
         {
             endpointsRange = endpointsRange.Replace("localhost", "127.0.0.1");

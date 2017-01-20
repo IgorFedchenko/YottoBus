@@ -8,10 +8,14 @@ using Yotto.ServiceBus.Proxy.Configuration;
 
 namespace Yotto.ServiceBus.ProxyService
 {
+    /// <summary>
+    /// This is a simple host for proxy <see cref="YottoBusProxy"/>
+    /// </summary>
     class Program
     {
         static void Main(string[] args)
         {
+            // TODO: Parse proxy config from file
             var proxyConfiguration = new ProxyConfiguration()
             {
                 BusPublisherPort = 19800,

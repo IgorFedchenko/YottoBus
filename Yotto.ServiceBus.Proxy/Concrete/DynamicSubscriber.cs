@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NetMQ;
 using NetMQ.Sockets;
+using Yotto.ServiceBus.Proxy.Model;
 
 namespace Yotto.ServiceBus.Proxy.Concrete
 {
@@ -17,9 +18,9 @@ namespace Yotto.ServiceBus.Proxy.Concrete
     class DynamicSubscriber
     {
         private readonly XSubscriberSocket _subscriberSocket;
-        private readonly List<IPEndPoint> _endpointsForDiscovering;
+        private readonly EndpointsRange _endpointsForDiscovering;
 
-        public DynamicSubscriber(XSubscriberSocket subscriberSocket, List<IPEndPoint> endpointsForDiscovering)
+        public DynamicSubscriber(XSubscriberSocket subscriberSocket, EndpointsRange endpointsForDiscovering)
         {
             _subscriberSocket = subscriberSocket;
             _endpointsForDiscovering = endpointsForDiscovering;
@@ -27,7 +28,7 @@ namespace Yotto.ServiceBus.Proxy.Concrete
 
         public void StartDiscovering()
         {
-            foreach (var endpoint in _endpointsForDiscovering)
+            foreach (var endpoint in _endpointsForDiscovering.All)
             {
                 CheckEndpoint(endpoint);
             }
