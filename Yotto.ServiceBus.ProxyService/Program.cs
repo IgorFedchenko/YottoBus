@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Topshelf;
 using Yotto.ServiceBus.Proxy.Concrete;
 using Yotto.ServiceBus.Proxy.Configuration;
 
@@ -15,41 +17,34 @@ namespace Yotto.ServiceBus.ProxyService
     /// </summary>
     class Program
     {
-        private static readonly string ConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "conf", "proxy.config");
-
         static void Main(string[] args)
         {
-            var proxyConfiguration = LoadConfiguration();
-
-            using (var proxy = new YottoBusProxy())
+            if (args.Contains("install") || args.Contains("uninstall") || Environment.OSVersion.Platform != PlatformID.Unix)
             {
-                proxy.Start(proxyConfiguration);
+                HostFactory.Run(config => {
+                    var parameters = config.SelectPlatform();
 
-                Console.ReadLine();
+                    config.Service<HostService>(s => {
+                        s.ConstructUsing(name => new HostService());
+                        s.WhenStarted(host => host.Start(parameters));
+                        s.WhenStopped(host => host.Stop());
+                    });
+                    
+                    config.SetServiceName("YottoBus.ProxyHost");
+                    config.SetDisplayName("YottoBus.ProxyHost");
+                    config.SetDescription("YottoBus.ProxyHost");
+                    config.StartAutomatically();
+                });
             }
-        }
-
-        static ProxyConfiguration LoadConfiguration()
-        {
-            if (!File.Exists(ConfigPath))
+            else
             {
-                var config = new ProxyConfiguration()
+                var service = new HostService();
+                service.Start(null);
+                while (true)
                 {
-                    BusPublisherPort = 19800,
-                    DiscoveryEndpointPatterns = new List<string>()
-                    {
-                        "127.0.0.1"
-                    },
-                    PortForPublishers = 19876,
-                    PortForSubscribers = 19877
-                };
-
-                new FileInfo(ConfigPath).Directory.Create();
-                File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(config));
+                    Thread.Sleep(1000);
+                }
             }
-
-            var configText = File.ReadAllText(ConfigPath);
-            return JsonConvert.DeserializeObject<ProxyConfiguration>(configText);
         }
     }
 }
