@@ -31,7 +31,7 @@ namespace Yotto.ServiceBus.Concrete
             _publisher = publisher;
             _connectionTracker = connectionTracker;
 
-            Identity = new PeerIdentity(configuration.Metadata);
+            Identity = new PeerIdentity(configuration.Context, configuration.Metadata);
 
             _connectionTracker.PeerConnected += HandlePeerConnected;
             _connectionTracker.PeerDisconnected += HandlePeerDisconnected;
@@ -210,11 +210,8 @@ namespace Yotto.ServiceBus.Concrete
                 if (message is long && !messageIsBigInt)
                 {
                     // When message is Int32, after deserializing it has Int64 type (long).
-                    // That is why we need to deliver message both to int and long subscribers,
-                    // just in a case.
-                    HandleReceivedMessage(peer, message);
+                    // That is why we need to deliver message to Int32 subscribers as well
                     HandleReceivedMessage(peer, Convert.ToInt32(message));
-                    return;
                 }
 
                 var eventType = message.GetType();

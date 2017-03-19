@@ -27,14 +27,5 @@ namespace Yotto.ServiceBus.Concrete.DeliveryStrategies
                 HandleMessage(message, sender, subscriber);
             }
         }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SequentialDeliveryStrategy"/> class.
-        /// </summary>
-        /// <param name="bus">The bus.</param>
-        public SequentialDeliveryStrategy(IServiceBus bus) 
-            : base(bus)
-        {
-        }
     }
 }

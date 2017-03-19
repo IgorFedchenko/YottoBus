@@ -21,7 +21,7 @@ namespace Yotto.ServiceBus.Abstract
         /// The loggers to be used inside the bus.
         /// </value>
         /// <remarks>By default, it includes console logger <see cref="ConsoleLogger"/></remarks>
-        List<IBusLogger> Loggers { get; }
+        IReadOnlyCollection<IBusLogger> Loggers { get; }
 
         /// <summary>
         /// Gets or sets the delivery strategy to be used to deliver message to their subscrubers.
@@ -30,7 +30,7 @@ namespace Yotto.ServiceBus.Abstract
         /// The delivery strategy.
         /// </value>
         /// <remarks>By default, sequensial strategy is used <see cref="SequentialDeliveryStrategy"/></remarks>
-        IDeliveryStrategy DeliveryStrategy { get; set; }
+        DeliveryStrategyBase DeliveryStrategy { get; }
 
         /// <summary>
         /// Creates the peer on the bus.

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using Yotto.ServiceBus.Abstract;
 using Yotto.ServiceBus.Concrete;
+using Yotto.ServiceBus.Concrete.DeliveryStrategies;
 using Yotto.ServiceBus.Concrete.Loggers;
 using Yotto.ServiceBus.Configuration;
 using Yotto.ServiceBus.Model;
@@ -30,7 +31,7 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
             }
         }
 
-        class SubscriberForStringAndInt: SubscriberFor<string>, IMessageHandler<int>
+        class SubscriberForStringAndInt : SubscriberFor<string>, IMessageHandler<int>
         {
             public void Handle(int @event, PeerIdentity sender)
             {
@@ -42,7 +43,7 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
         [Test]
         public void PublishSubscribeTest()
         {
-            var bus = YottoBusFactory.Create();
+            var bus = new YottoBusFactory().Create();
 
             using (var peer1 = bus.CreatePeer())
             {
@@ -67,8 +68,7 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
         [Test]
         public void SubscribeToPeerConnectedOrDisconnectedTest()
         {
-            var bus = YottoBusFactory.Create();
-            bus.Loggers.Add(new ConsoleLogger());
+            var bus = new YottoBusFactory().Create();
 
             using (var peer1 = bus.CreatePeer())
             using (var peer2 = bus.CreatePeer())
@@ -101,9 +101,9 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
         [Test]
         public void MultipleSubscriptionsTest()
         {
-            var bus = YottoBusFactory.Create();
+            var bus = new YottoBusFactory().Create();
 
-            using (var peer1 = bus.CreatePeer(new PeerConfiguration()))
+            using (var peer1 = bus.CreatePeer())
             {
                 peer1.Connect();
 
@@ -128,10 +128,10 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
         [Test]
         public void SendDedicatedMessageTest()
         {
-            var bus = YottoBusFactory.Create();
+            var bus = new YottoBusFactory().Create();
 
-            using (var peer1 = bus.CreatePeer(new PeerConfiguration()))
-            using (var peer2 = bus.CreatePeer(new PeerConfiguration()))
+            using (var peer1 = bus.CreatePeer())
+            using (var peer2 = bus.CreatePeer())
             {
                 peer1.Connect();
                 peer2.Connect();
@@ -154,6 +154,32 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
                 Thread.Sleep(1000);
 
                 CollectionAssert.IsEmpty(subscriberToSkip.ReceivedMessages);
+            }
+        }
+
+        [Test]
+        public void PeersInDifferentContextDoNotReceiveSubscribedMessages()
+        {
+            var bus = new YottoBusFactory().Create();
+
+            using (var peer1 = bus.CreatePeer("contextOne"))
+            using (var peer2 = bus.CreatePeer("contextTwo"))
+            {
+                peer1.Connect();
+                peer2.Connect();
+
+                var subscriber = new SubscriberFor<string>();
+                peer1.Subscribe(subscriber);
+
+                Thread.Sleep(50);
+
+                var message = "Hello";
+                peer2.Publish(message);
+
+                Thread.Sleep(5000);
+
+                CollectionAssert.DoesNotContain(subscriber.ReceivedMessages, message);
+                CollectionAssert.DoesNotContain(subscriber.MessageSenders, peer1.Identity);
             }
         }
     }

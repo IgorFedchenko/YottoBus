@@ -28,14 +28,5 @@ namespace Yotto.ServiceBus.Concrete.DeliveryStrategies
                 Task.Run(() => HandleMessage(message, sender, subscriber));
             }
         }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ParallelDeliveryStrategy"/> class.
-        /// </summary>
-        /// <param name="bus">The bus.</param>
-        public ParallelDeliveryStrategy(IServiceBus bus)
-            : base(bus)
-        {
-        }
     }
 }

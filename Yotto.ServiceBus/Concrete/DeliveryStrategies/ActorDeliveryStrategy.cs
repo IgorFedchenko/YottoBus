@@ -63,14 +63,5 @@ namespace Yotto.ServiceBus.Concrete.DeliveryStrategies
                 _handlersTasks.TryRemove(handlerTask.Key, out tmp);
             }
         }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ActorDeliveryStrategy"/> class.
-        /// </summary>
-        /// <param name="bus">The bus.</param>
-        public ActorDeliveryStrategy(IServiceBus bus) 
-            : base(bus)
-        {
-        }
     }
 }

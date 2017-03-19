@@ -19,8 +19,14 @@ namespace Yotto.ServiceBus.Concrete
     /// <seealso cref="Yotto.ServiceBus.Abstract.IPublisher" />
     class Publisher : IPublisher
     {
+        private readonly MessageTopicBuilder _topicBuilder;
         private PublisherSocket _socket;
         private PeerIdentity _selfIdentity;
+
+        public Publisher(MessageTopicBuilder topicBuilder)
+        {
+            _topicBuilder = topicBuilder;
+        }
 
         /// <summary>
         /// Starts the publisher, connecting it to specified subscruber.
@@ -63,7 +69,7 @@ namespace Yotto.ServiceBus.Concrete
         /// <param name="message">The message to publish.</param>
         public void Publish(object message)
         {
-            string topic = message.GetType().AssemblyQualifiedName; // Use message type as a topic
+            string topic = _topicBuilder.GetMessageTag(_selfIdentity.Context, message.GetType()); // Use message type as a topic
             string serializedMessage = WrapMessage(message).ToString();
 
             _socket.SendMoreFrame(Encode(topic)).SendFrame(Encode(serializedMessage));
@@ -76,7 +82,7 @@ namespace Yotto.ServiceBus.Concrete
         /// <param name="peer">The peer to send to</param>
         public void Send(object message, PeerIdentity peer)
         {
-            string topic = peer.Id.ToString(); // Use peer Id as a topic
+            string topic = _topicBuilder.GetMessageTag(_selfIdentity.Context, peer.Id); // Use peer Id as a topic
             string serializedMessage = WrapMessage(message).ToString();
 
             _socket.SendMoreFrame(Encode(topic)).SendFrame(Encode(serializedMessage));

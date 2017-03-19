@@ -22,13 +22,21 @@ namespace Yotto.ServiceBus.Concrete
     /// <seealso cref="Yotto.ServiceBus.Abstract.ISubscriber" />
     class Subscriber : ISubscriber
     {
+        private readonly MessageTopicBuilder _topicBuilder;
         private SubscriberSocket _socket;
         private CancellationTokenSource _cancellation;
+        private PeerIdentity _peer;
 
         /// <summary>
         /// Occurs when new message received.
         /// </summary>
         public event Action<Message> MessageReceived;
+
+        public Subscriber(MessageTopicBuilder topicBuilder)
+        {
+            _topicBuilder = topicBuilder;
+        }
+
 
         /// <summary>
         /// Add subscrubtion to given message type
@@ -36,7 +44,7 @@ namespace Yotto.ServiceBus.Concrete
         /// <param name="messageType">Type of the message to subscrube.</param>
         public void SubscribeTo(Type messageType)
         {
-            _socket.Subscribe(messageType.AssemblyQualifiedName);
+            _socket.Subscribe(_topicBuilder.GetMessageTag(_peer.Context, messageType));
         }
 
         /// <summary>
@@ -45,7 +53,7 @@ namespace Yotto.ServiceBus.Concrete
         /// <param name="messageType">Type of the message to unsubscrube.</param>
         public void UnsubscribeFrom(Type messageType)
         {
-            _socket.Unsubscribe(messageType.AssemblyQualifiedName);
+            _socket.Unsubscribe(_topicBuilder.GetMessageTag(_peer.Context, messageType));
         }
 
         /// <summary>
@@ -62,9 +70,11 @@ namespace Yotto.ServiceBus.Concrete
         /// Starts this instance, connecting it to specified publishers.
         /// </summary>
         /// <param name="publishers">The publishers to connect.</param>
-        /// <param name="peer">The self peer identoty.</param>
+        /// <param name="peer">The self peer identity.</param>
         public void Start(List<IPEndPoint> publishers, PeerIdentity peer)
         {
+            _peer = peer;
+
             _socket = new SubscriberSocket();
             foreach (var publisherEndpoint in publishers)
             {
@@ -72,7 +82,7 @@ namespace Yotto.ServiceBus.Concrete
                 _socket.Connect(endpoint);
             }
 
-            _socket.Subscribe(peer.Id.ToString());
+            _socket.Subscribe(_topicBuilder.GetMessageTag(peer.Context, peer.Id));
 
             StartReceivingMessages();
         }
@@ -116,7 +126,6 @@ namespace Yotto.ServiceBus.Concrete
                     }
                 }
             }, _cancellation.Token);
-
         }
     }
 }

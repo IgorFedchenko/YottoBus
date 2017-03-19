@@ -21,7 +21,6 @@ namespace Yotto.ServiceBus.Concrete
     public class YottoBus : IServiceBus
     {
         private readonly IKernel _container;
-        private IDeliveryStrategy _deliveryStrategy;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="YottoBus"/> class.
@@ -31,12 +30,10 @@ namespace Yotto.ServiceBus.Concrete
         {
             _container = container;
 
-            Loggers = new List<IBusLogger>()
-            {
-                new ConsoleLogger(),
-            };
+            Loggers = _container.GetAll<IBusLogger>().ToList();
 
-            DeliveryStrategy = new SequentialDeliveryStrategy(this);
+            DeliveryStrategy = _container.Get<DeliveryStrategyBase>();
+            DeliveryStrategy.AddLoggers(Loggers);
         }
 
         /// <summary>
@@ -49,20 +46,7 @@ namespace Yotto.ServiceBus.Concrete
         /// <remarks>
         /// By default, sequensial strategy is used <see cref="SequentialDeliveryStrategy" />
         /// </remarks>
-        public IDeliveryStrategy DeliveryStrategy
-        {
-            get
-            {
-                return _deliveryStrategy;
-            }
-            set
-            {
-                if (value == null)
-                    throw  new ArgumentNullException(nameof(DeliveryStrategy));
-
-                _deliveryStrategy = value;
-            }
-        }
+        public DeliveryStrategyBase DeliveryStrategy { get; }
 
         /// <summary>
         /// Gives access to bus loggers collection - feel free to add your custom loggers in it
@@ -73,7 +57,7 @@ namespace Yotto.ServiceBus.Concrete
         /// <remarks>
         /// By default, it includes console logger <see cref="ConsoleLogger" />
         /// </remarks>
-        public List<IBusLogger> Loggers { get; }
+        public IReadOnlyCollection<IBusLogger> Loggers { get; }
 
         /// <summary>
         /// Creates the peer on the bus.

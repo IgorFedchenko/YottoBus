@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Ninject;
 using Yotto.ServiceBus.Abstract;
+using Yotto.ServiceBus.Concrete.DeliveryStrategies;
+using Yotto.ServiceBus.Concrete.Loggers;
 using Yotto.ServiceBus.Configuration;
 
 namespace Yotto.ServiceBus.Concrete
@@ -12,32 +14,47 @@ namespace Yotto.ServiceBus.Concrete
     /// <summary>
     /// Factory for creating default configured bus
     /// </summary>
-    public static class YottoBusFactory
+    public class YottoBusFactory
     {
-        private static IKernel _container;
+        protected virtual IKernel Container { get; } = new StandardKernel();
 
-        static YottoBusFactory()
+        public YottoBusFactory()
         {
             RegisterDependencies();
+        }
+
+        public YottoBusFactory UsingDeliveryStrategy<TDelivertStranegy>() where TDelivertStranegy : DeliveryStrategyBase
+        {
+            Container.Rebind<DeliveryStrategyBase>().To<TDelivertStranegy>();
+
+            return this;
+        }
+
+        public YottoBusFactory WithLogger<TLogger>() where TLogger : IBusLogger
+        {
+            Container.Bind<IBusLogger>().To<TLogger>();
+
+            return this;
         }
 
         /// <summary>
         /// Creates the bus instance.
         /// </summary>
         /// <returns></returns>
-        public static IServiceBus Create()
+        public IServiceBus Create()
         {
-            return _container.Get<IServiceBus>();
+            return Container.Get<IServiceBus>();
         }
 
-        private static void RegisterDependencies()
+        private void RegisterDependencies()
         {
-            _container = new StandardKernel();
-            _container.Bind<IServiceBus>().To<YottoBus>().InSingletonScope();
-            _container.Bind<IPeer>().To<Peer>();
-            _container.Bind<ISubscriber>().To<Subscriber>();
-            _container.Bind<IPublisher>().To<Publisher>();
-            _container.Bind<IConnectionTracker>().To<ConnectionTracker>();
+            Container.Bind<IServiceBus>().To<YottoBus>().InSingletonScope();
+            Container.Bind<IPeer>().To<Peer>();
+            Container.Bind<ISubscriber>().To<Subscriber>();
+            Container.Bind<IPublisher>().To<Publisher>();
+            Container.Bind<IBusLogger>().To<ConsoleLogger>();
+            Container.Bind<IConnectionTracker>().To<ConnectionTracker>();
+            Container.Bind<DeliveryStrategyBase>().To<SequentialDeliveryStrategy>();
         }
     }
 }

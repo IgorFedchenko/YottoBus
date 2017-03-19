@@ -15,10 +15,11 @@ namespace Yotto.ServiceBus.Model
     {
         public PeerIdentity() { }
 
-        public PeerIdentity(PeerMetadata metadata)
+        public PeerIdentity(string contextName, PeerMetadata metadata)
         {
             Id = Guid.NewGuid();
             Metadata = metadata;
+            Context = contextName;
         }
 
         /// <summary>
@@ -28,6 +29,11 @@ namespace Yotto.ServiceBus.Model
         /// The identifier.
         /// </value>
         public Guid Id { get; set; }
+
+        /// <summary>
+        /// Context where this peer exists
+        /// </summary>
+        public string Context { get; set; }
 
         /// <summary>
         /// Peer metadata, as set of key-value pairs

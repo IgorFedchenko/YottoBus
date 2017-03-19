@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using NUnit.Framework;
 using Yotto.ServiceBus.Concrete;
 using Yotto.ServiceBus.Configuration;
@@ -15,31 +16,50 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
         [Test]
         public void ShouldDiscoverEachOther()
         {
-            var bus = YottoBusFactory.Create();
+            var bus = new YottoBusFactory().Create();
 
-            using (var peer1 = bus.CreatePeer(new PeerConfiguration()))
-            using (var peer2 = bus.CreatePeer(new PeerConfiguration()))
+            using (var peer1 = bus.CreatePeer())
+            using (var peer2 = bus.CreatePeer())
             {
                 peer1.Connect();
                 peer2.Connect();
 
                 AwaitAssert(TimeSpan.FromSeconds(5), () =>
                 {
-                    CollectionAssert.AreEquivalent(new[] {peer1.Identity, peer2.Identity}, peer1.GetConnectedPeers());
-                    CollectionAssert.AreEquivalent(new[] {peer1.Identity, peer2.Identity}, peer2.GetConnectedPeers());
+                    CollectionAssert.AreEquivalent(new[] { peer1.Identity, peer2.Identity }, peer1.GetConnectedPeers());
+                    CollectionAssert.AreEquivalent(new[] { peer1.Identity, peer2.Identity }, peer2.GetConnectedPeers());
                 });
             }
         }
+        
+        [Test]
+        public void PeersInDifferentContextsDoNotSeeEachOther()
+        {
+            var bus = new YottoBusFactory().Create();
+
+            using (var peer1 = bus.CreatePeer("contextOne"))
+            using (var peer2 = bus.CreatePeer("contextTwo"))
+            {
+                peer1.Connect();
+                peer2.Connect();
+
+                Thread.Sleep(5000);
+
+                CollectionAssert.AreEquivalent(new[] { peer1.Identity }, peer1.GetConnectedPeers());
+                CollectionAssert.AreEquivalent(new[] { peer2.Identity }, peer2.GetConnectedPeers());
+            }
+        }
+        
 
         [Test]
         public void ShouldSetIsConnectedProperly()
         {
-            var bus = YottoBusFactory.Create();
+            var bus = new YottoBusFactory().Create();
 
-            using (var peer1 = bus.CreatePeer(new PeerConfiguration()))
+            using (var peer1 = bus.CreatePeer())
             {
                 peer1.Connect();
-                
+
                 Assert.True(peer1.IsConnected);
 
                 peer1.Disconnect();
@@ -51,16 +71,14 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
         [Test]
         public void ShouldDiscoverWithMetadata()
         {
-            var bus = YottoBusFactory.Create();
+            var bus = new YottoBusFactory().Create();
 
-            var conf = new PeerConfiguration()
+            var conf = new PeerConfiguration(string.Empty, new Dictionary<string, string>()
             {
-                Metadata = new PeerMetadata(new Dictionary<string, string>()
-                {
-                    ["key"] = "value"
-                })
-            };
-            using (var peer1= bus.CreatePeer(conf))
+                ["key"] = "value"
+            });
+
+            using (var peer1 = bus.CreatePeer(conf))
             {
                 peer1.Connect();
 
@@ -76,7 +94,7 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
         [Test]
         public void ShouldDiscoverDisconnect()
         {
-            var bus = YottoBusFactory.Create();
+            var bus = new YottoBusFactory().Create();
 
             using (var peer1 = bus.CreatePeer())
             using (var peer2 = bus.CreatePeer())
@@ -110,7 +128,7 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
         // [Test]
         public void MemoryConsumptionTest()
         {
-            var bus = YottoBusFactory.Create();
+            var bus = new YottoBusFactory().Create();
 
             using (var peer1 = bus.CreatePeer())
             using (var peer2 = bus.CreatePeer())
@@ -120,7 +138,7 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
 
                 while (true)
                 {
-                    
+
                 }
             }
         }

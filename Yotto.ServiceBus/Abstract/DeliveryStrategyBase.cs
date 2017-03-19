@@ -12,22 +12,26 @@ namespace Yotto.ServiceBus.Abstract
     /// Usually you will inherit from this class and implement some strategy, 
     /// calling HandleMessage <see cref="HandleMessage"/> to invoke handler method synchronously.
     /// </summary>
-    public abstract class DeliveryStrategyBase : IDeliveryStrategy
+    public abstract class DeliveryStrategyBase
     {
-        private readonly IEnumerable<IBusLogger> _loggers;
-
-        protected DeliveryStrategyBase(IServiceBus bus)
-        {
-            _loggers = bus.Loggers;
-        }
+        private readonly List<IBusLogger> _loggers = new List<IBusLogger>();
 
         /// <summary>
-        /// This method is normally called via IDeliveryStrategy interface <see cref="IDeliveryStrategy"/>
+        /// Delivers the message to specified subscribers.
         /// </summary>
-        /// <param name="message">Message to deliver</param>
-        /// <param name="sender">Sender of this message</param>
-        /// <param name="subscribers">Subscribers to deliver the message</param>
+        /// <param name="message">The message to delivered.</param>
+        /// <param name="sender">The sender of the message.</param>
+        /// <param name="subscribers">The subscribers to deliver.</param>
         public abstract void DeliverMessage(object message, PeerIdentity sender, IEnumerable<IMessageHandler> subscribers);
+
+        /// <summary>
+        /// Adds loggers to be used for logging delivery events
+        /// </summary>
+        /// <param name="loggers">The loggers.</param>
+        internal void AddLoggers(IEnumerable<IBusLogger> loggers)
+        {
+            _loggers.AddRange(loggers);
+        }
 
         /// <summary>
         /// Delivers the message to particular subscriber/handler, calling it's handling method
