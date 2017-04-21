@@ -14,7 +14,7 @@ namespace Yotto.ServiceBus.Akka
         {
             var proxy = new ActorProxy<TMessage>(actor);
 
-            peer.Subscribe(proxy);
+            peer.Register(proxy);
         }
     }
 }

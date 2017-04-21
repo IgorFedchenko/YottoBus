@@ -50,7 +50,7 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
                 peer1.Connect();
 
                 var subscriber = new SubscriberFor<string>();
-                peer1.Subscribe(subscriber);
+                peer1.Register(subscriber);
 
                 Thread.Sleep(50);
 
@@ -77,8 +77,8 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
 
                 var subscriberForConnected = new SubscriberFor<PeerConnected>();
                 var subscriberForDisconnected = new SubscriberFor<PeerDisconnected>();
-                peer1.Subscribe(subscriberForConnected);
-                peer1.Subscribe(subscriberForDisconnected);
+                peer1.Register(subscriberForConnected);
+                peer1.Register(subscriberForDisconnected);
 
                 Thread.Sleep(50);
 
@@ -108,7 +108,7 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
                 peer1.Connect();
 
                 var subscriber = new SubscriberForStringAndInt();
-                peer1.Subscribe(subscriber);
+                peer1.Register(subscriber);
 
                 Thread.Sleep(50);
 
@@ -138,8 +138,8 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
 
                 var subscriberToReceive = new SubscriberFor<string>();
                 var subscriberToSkip = new SubscriberFor<string>();
-                peer1.Subscribe(subscriberToReceive);
-                peer2.Subscribe(subscriberToSkip);
+                peer1.Register(subscriberToReceive);
+                peer2.Register(subscriberToSkip);
 
                 Thread.Sleep(50);
 
@@ -169,7 +169,7 @@ namespace Yotto.ServiceBus.Tests.IntegrationTests
                 peer2.Connect();
 
                 var subscriber = new SubscriberFor<string>();
-                peer1.Subscribe(subscriber);
+                peer1.Register(subscriber);
 
                 Thread.Sleep(50);
 

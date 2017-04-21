@@ -100,7 +100,7 @@ namespace Yotto.ServiceBus.Concrete
         /// Subscribes the specified handler to all message types it is capable to handle.
         /// </summary>
         /// <param name="handler">The handler to be subscrubed.</param>
-        public void Subscribe(IMessageHandler handler)
+        public void Register(IMessageHandler handler)
         {
             Type[] handlingTypes = handler.GetType().GetInterfaces()
                             .Where(
@@ -123,7 +123,7 @@ namespace Yotto.ServiceBus.Concrete
         /// Unsubscribes the specified handler from all message types.
         /// </summary>
         /// <param name="handler">The handler to be unsubscrubed.</param>
-        public void Unsubscribe(IMessageHandler handler)
+        public void Unregister(IMessageHandler handler)
         {
             Type[] handlingTypes = handler.GetType().GetInterfaces()
                             .Where(

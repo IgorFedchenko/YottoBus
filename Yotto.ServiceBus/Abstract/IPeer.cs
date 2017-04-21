@@ -39,16 +39,16 @@ namespace Yotto.ServiceBus.Abstract
         PeerIdentity[] GetConnectedPeers();
 
         /// <summary>
-        /// Subscribes the specified handler to all message types it is capable to handle.
+        /// Registers the specified handler to all message types it is capable to handle.
         /// </summary>
         /// <param name="handler">The handler to be subscrubed.</param>
-        void Subscribe(IMessageHandler handler);
+        void Register(IMessageHandler handler);
 
         /// <summary>
-        /// Unsubscribes the specified handler from all message types.
+        /// Unregisters the specified handler from all message types.
         /// </summary>
         /// <param name="handler">The handler to be unsubscrubed.</param>
-        void Unsubscribe(IMessageHandler handler);
+        void Unregister(IMessageHandler handler);
 
         /// <summary>
         /// Publishes the specified message.
